@@ -10,10 +10,10 @@
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Body, Controller, Get, Param, Put, Post, UseGuards, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseBoolPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import WebdavShareDto from '@libs/filesharing/types/webdavShareDto';
-import AppConfigGuard from '../../appconfig/appconfig.guard';
+import AdminGuard from '../../common/guards/admin.guard';
 import WebdavSharesService from './webdav-shares.service';
 import GetCurrentUserGroups from '../../common/decorators/getCurrentUserGroups.decorator';
 
@@ -24,24 +24,36 @@ class WebdavSharesController {
   constructor(private readonly webdavSharesService: WebdavSharesService) {}
 
   @Get()
-  findAllShares(@GetCurrentUserGroups() currentUserGroups: string[]) {
+  async findAllShares(
+    @Query('isRootServer', new ParseBoolPipe({ optional: true })) isRootServer: boolean | undefined,
+    @GetCurrentUserGroups() currentUserGroups: string[],
+  ) {
+    if (isRootServer) {
+      return this.webdavSharesService.findAllWebdavServers();
+    }
+    if (isRootServer === undefined) {
+      const servers = await this.webdavSharesService.findAllWebdavServers();
+      const shares = await this.webdavSharesService.findAllWebdavShares(currentUserGroups);
+      return [...servers, ...shares];
+    }
+
     return this.webdavSharesService.findAllWebdavShares(currentUserGroups);
   }
 
   @Post()
-  @UseGuards(AppConfigGuard)
+  @UseGuards(AdminGuard)
   createWebdavShare(@Body() webdavShareDto: WebdavShareDto) {
     return this.webdavSharesService.createWebdavShare(webdavShareDto);
   }
 
   @Put(':webdavShareId')
-  @UseGuards(AppConfigGuard)
+  @UseGuards(AdminGuard)
   async updateWebdavShare(@Param('webdavShareId') webdavShareId: string, @Body() webdavShareDto: WebdavShareDto) {
     return this.webdavSharesService.updateWebdavShare(webdavShareId, webdavShareDto);
   }
 
   @Delete(':webdavShareId')
-  @UseGuards(AppConfigGuard)
+  @UseGuards(AdminGuard)
   async deleteWebdavShare(@Param('webdavShareId') webdavShareId: string) {
     return this.webdavSharesService.deleteWebdavShare(webdavShareId);
   }

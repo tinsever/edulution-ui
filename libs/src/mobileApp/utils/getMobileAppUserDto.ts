@@ -17,11 +17,13 @@ import GlobalSettingsDto from '@libs/global-settings/types/globalSettings.dto';
 import parseLmnGeneralizedTimeAttribute from '@libs/mobileApp/utils/parseLmnGeneralizedTimeAttribute';
 
 const getMobileAppUserDto = ({
+  homeDirectory,
   usernameFallback,
   globalSettings,
   user = null,
   lmn = null,
 }: {
+  homeDirectory: string;
   usernameFallback: string;
   user?: UserDto | null;
   lmn?: LmnUserInfo | null;
@@ -40,13 +42,11 @@ const getMobileAppUserDto = ({
   classes: Array.isArray(lmn?.schoolclasses)
     ? lmn.schoolclasses.map((userClass) => userClass.match(/([^-]+)$/)?.at(1) || '')
     : [],
-  street: '',
-  schoolName: '',
-  postalCode: '',
-  city: '',
   userProfilePicture: lmn?.thumbnailPhoto || '',
-  institutionLogo: '',
+  institutionLogo: `edu-api/public/branding/logo`,
   deploymentTarget: globalSettings?.general.deploymentTarget || '',
+  homeDirectory,
+  organisationInfo: globalSettings?.organisationInfo || {},
 });
 
 export default getMobileAppUserDto;
