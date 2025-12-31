@@ -1,22 +1,28 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useMenuBarConfig from '@/hooks/useMenuBarConfig';
-import { MenubarMenu, MenubarTrigger, VerticalMenubar } from '@/components/ui/MenubarSH';
-
 import cn from '@libs/common/utils/className';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useOnClickOutside, useToggle } from 'usehooks-ts';
+import { GoSidebarCollapse, GoSidebarExpand } from 'react-icons/go';
+import { useOnClickOutside } from 'usehooks-ts';
 import useMedia from '@/hooks/useMedia';
 import { getFromPathName } from '@libs/common/utils';
 import APPS from '@libs/appconfig/constants/apps';
@@ -25,23 +31,32 @@ import { useTranslation } from 'react-i18next';
 import URL_SEARCH_PARAMS from '@libs/common/constants/url-search-params';
 import useFileSharingStore from '@/pages/FileSharing/useFileSharingStore';
 import useVariableSharePathname from '@/pages/FileSharing/hooks/useVariableSharePathname';
+import usePlatformStore from '@/store/EduApiStore/usePlatformStore';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
+import getAppIconClassName from '@/utils/getAppIconClassName';
+import useMenuBarStore from './useMenuBarStore';
+import { Button } from './Button';
 
 const MenuBar: React.FC = () => {
   const { t } = useTranslation();
-  const [isOpen, toggle] = useToggle(false);
+  const { isMobileMenuBarOpen, toggleMobileMenuBar, isCollapsed, toggleCollapsed } = useMenuBarStore();
   const menubarRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
   const menuBarEntries = useMenuBarConfig();
   const { setCurrentPath, setPathToRestoreSession } = useFileSharingStore();
   const webdavShares = useFileSharingStore((state) => state.webdavShares);
   const { createVariableSharePathname } = useVariableSharePathname();
+  const isEdulutionApp = usePlatformStore((state) => state.isEdulutionApp);
 
   const [isSelected, setIsSelected] = useState(getFromPathName(pathname, 2));
-  const { isMobileView } = useMedia();
-
+  const { isMobileView, isTabletView } = useMedia();
+  const isDesktopView = !isMobileView && !isTabletView && !isEdulutionApp;
+  const shouldCollapse = isDesktopView && isCollapsed;
   const navigate = useNavigate();
 
-  useOnClickOutside(menubarRef, toggle);
+  useOnClickOutside(menubarRef, () => {
+    if (isMobileView || isTabletView) toggleMobileMenuBar();
+  });
 
   if (menuBarEntries.disabled) {
     return null;
@@ -61,6 +76,8 @@ const MenuBar: React.FC = () => {
     switch (pathParts[0]) {
       case APPS.FILE_SHARING: {
         const currentShare = webdavShares.find((s) => s.displayName === pathParts[1]) ?? webdavShares[0];
+
+        if (!currentShare || currentShare.isRootServer) break;
 
         let currentSharePath = currentShare.pathname;
         if (currentShare.pathVariables) {
@@ -102,45 +119,58 @@ const MenuBar: React.FC = () => {
     >
       <div className="flex flex-col items-center justify-center py-6">
         <button
-          className="flex flex-col items-center justify-center"
+          className="flex flex-col items-center justify-center rounded-xl p-2 hover:bg-muted-background"
           type="button"
           onClick={handleHeaderIconClick}
         >
           <img
             src={menuBarEntries.icon}
             alt={menuBarEntries.title}
-            className="h-20 w-20 object-contain"
+            className={cn(
+              'object-contain transition-all',
+              shouldCollapse ? 'h-10 w-10' : 'h-20 w-20',
+              getAppIconClassName(menuBarEntries.icon),
+            )}
           />
-          <h3 className="mb-4 mt-4 text-center font-bold">{menuBarEntries.title}</h3>
+          {!shouldCollapse && <h2 className="mb-2 mt-2 text-center font-bold">{menuBarEntries.title}</h2>}
         </button>
       </div>
-      <MenubarMenu>
-        <div className="flex-1 overflow-y-auto pb-10 scrollbar-thin">
-          {menuBarEntries.menuItems.map((item) => (
-            <React.Fragment key={item.label}>
-              <MenubarTrigger
-                className={cn(
-                  'flex w-full cursor-pointer items-center gap-3 py-1 pl-3 pr-10 transition-colors',
-                  menuBarEntries.color,
-                  isSelected === item.id ? menuBarEntries.color.split(':')[1] : '',
-                )}
-                onClick={() => {
-                  setIsSelected(item.id);
-                  toggle();
-                  item.action();
-                }}
-              >
-                <img
-                  src={item.icon}
-                  alt={item.label}
-                  className="h-12 w-12 object-contain"
-                />
-                <p className="text-left">{item.label}</p>
-              </MenubarTrigger>
-            </React.Fragment>
-          ))}
-        </div>
-      </MenubarMenu>
+
+      <div className="flex-1 overflow-y-auto pb-10">
+        {menuBarEntries.menuItems.map((item) => {
+          const content = (
+            <button
+              type="button"
+              onClick={() => {
+                setIsSelected(item.id);
+                toggleMobileMenuBar();
+                item.action();
+              }}
+              className={cn(
+                'flex w-full items-center gap-3 py-1 pl-3 pr-3 transition-colors hover:bg-muted-background',
+                isSelected === item.id ? menuBarEntries.color.split(':')[1] : '',
+                shouldCollapse && 'justify-center',
+              )}
+            >
+              <img
+                src={item.icon}
+                alt={item.label}
+                className={cn('h-12 w-12 object-contain', isSelected !== item.id && getAppIconClassName(item.icon))}
+              />
+              {!shouldCollapse && <span className={cn(isSelected === item.id ? 'text-white' : '')}>{item.label}</span>}
+            </button>
+          );
+
+          return shouldCollapse ? (
+            <Tooltip key={item.id}>
+              <TooltipTrigger asChild>{content}</TooltipTrigger>
+              <TooltipContent side="right">{item.label}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <React.Fragment key={item.id}>{content}</React.Fragment>
+          );
+        })}
+      </div>
     </div>
   );
 
@@ -154,42 +184,37 @@ const MenuBar: React.FC = () => {
         />
       )}
 
-      {isMobileView ? (
-        <>
-          {isOpen && (
-            <div
-              className="fixed inset-0 z-40 bg-foreground bg-opacity-50"
-              role="button"
-              tabIndex={0}
-              onClickCapture={toggle}
-            />
-          )}
-
-          <VerticalMenubar
-            className={cn(
-              'fixed top-0 z-50 h-full bg-gray-700 duration-300 ease-in-out',
-              !isOpen ? 'w-0' : 'w-64',
-              'bg-foreground',
-            )}
-          >
-            {isOpen && renderMenuBarContent()}
-          </VerticalMenubar>
-
+      {isDesktopView ? (
+        <aside className="relative flex h-dvh">
           <div
-            role="button"
-            tabIndex={0}
             className={cn(
-              'absolute top-0 z-50 flex h-screen w-4 cursor-pointer items-center justify-center bg-gray-700 bg-opacity-60',
-              !isOpen ? 'left-0' : 'left-64',
+              'bg-glass h-full overflow-hidden rounded-r-xl shadow-lg shadow-slate-400 backdrop-blur-lg transition-all duration-300',
+              shouldCollapse ? 'w-16' : 'w-64',
             )}
-            onClickCapture={toggle}
           >
-            <p className="text-xl text-background">{!isOpen ? '≡' : '×'}</p>
+            {renderMenuBarContent()}
           </div>
-        </>
+          <Button
+            type="button"
+            variant="btn-outline"
+            size="sm"
+            onClick={toggleCollapsed}
+            className={cn(
+              'bg-glass absolute right-[-15px] top-2 border-accent px-2 py-1 backdrop-blur-lg hover:bg-muted-background',
+              shouldCollapse ? 'cursor-e-resize' : 'cursor-w-resize',
+            )}
+          >
+            {isCollapsed ? <GoSidebarCollapse size={18} /> : <GoSidebarExpand size={18} />}
+          </Button>
+        </aside>
       ) : (
-        <div className="relative flex h-screen">
-          <VerticalMenubar className="w-64 bg-foreground bg-opacity-40">{renderMenuBarContent()}</VerticalMenubar>
+        <div
+          className={cn(
+            'bg-glass fixed left-0 top-0 z-50 h-full overflow-x-hidden backdrop-blur-md duration-300 ease-in-out',
+            isMobileMenuBarOpen ? 'w-64 border-r-[1px] border-muted' : 'w-0',
+          )}
+        >
+          {isMobileMenuBarOpen && renderMenuBarContent()}
         </div>
       )}
     </>

@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React from 'react';
@@ -41,13 +48,13 @@ const AsyncMultiSelect = <T extends MultipleSelectorOptionSH>({
   const { t } = useTranslation();
 
   const loadingIndicator = (
-    <p className={`leading-1 py-2 text-center ${variant === 'default' ? 'text-secondary' : 'text-background'}`}>
+    <p className={`leading-1 py-2 text-center ${variant === 'default' ? 'dark:text-secondary' : ''}`}>
       {t('search.loading')}...
     </p>
   );
 
   const emptyIndicator = (
-    <p className={`leading-1 w-full py-2 text-center ${variant === 'default' ? 'text-secondary' : 'text-background'}`}>
+    <p className={`leading-1 w-full py-2 text-center ${variant === 'default' ? 'dark:text-secondary' : ''}`}>
       {t('search.no-results')}
     </p>
   );
@@ -64,11 +71,10 @@ const AsyncMultiSelect = <T extends MultipleSelectorOptionSH>({
       loadingIndicator={loadingIndicator}
       emptyIndicator={emptyIndicator}
       delay={delay}
-      badgeClassName={badgeClassName || 'text-base font-normal '}
-      className={`rounded-lg p-[8px] ${variant === 'default' ? 'bg-accent' : 'bg-muted'}`}
+      badgeClassName={badgeClassName || 'font-normal '}
       onChange={handleChange}
       onSearch={onSearch}
-      inputProps={{ className: 'text-base m-0' }}
+      inputProps={{ className: 'm-0' }}
       showRemoveIconInBadge={showRemoveIconInBadge}
       variant={variant}
     />

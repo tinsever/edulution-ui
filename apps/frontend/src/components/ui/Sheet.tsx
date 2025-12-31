@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 'use client';
@@ -56,7 +63,6 @@ const sheetVariants = cva(
       variant: {
         primary: 'bg-overlay',
         secondary: 'bg-ciGray',
-        tertiary: 'bg-black',
       },
     },
     defaultVariants: {
@@ -79,7 +85,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         ref={ref}
         className={cn(
           { 'bg-overlay text-background': variant === 'primary' },
-          { 'bg-overlay text-foreground': variant === 'secondary' || variant === 'tertiary' },
+          { 'bg-overlay text-foreground': variant === 'secondary' },
           sheetVariants({ side, variant }),
           'max-h-[90vh] overflow-auto',
           className,
@@ -91,7 +97,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           <SheetPrimitive.Close
             className={cn(
               { 'text-card-foreground': variant === 'primary' },
-              { 'text-background': variant === 'secondary' || variant === 'tertiary' },
+              { 'text-background': variant === 'secondary' },
               'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none',
             )}
           >
@@ -110,7 +116,7 @@ const SheetHeader = ({ className, variant, ...props }: SheetHeaderProps) => (
   <div
     className={cn(
       { 'color-black text-background': variant === 'primary' },
-      { 'color-white text-foreground': variant === 'secondary' || variant === 'tertiary' },
+      { 'color-white text-foreground': variant === 'secondary' },
       'flex flex-col space-y-2 text-center sm:text-left',
       className,
     )}
@@ -121,7 +127,7 @@ SheetHeader.displayName = 'SheetHeader';
 
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}
+    className={cn('mt-8 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}
     {...props}
   />
 );
@@ -145,7 +151,7 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn('sr-only', className)}
     {...props}
   />
 ));

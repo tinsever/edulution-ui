@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useState } from 'react';
@@ -15,7 +22,7 @@ import { MdFileCopy } from 'react-icons/md';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { EyeLightIcon, EyeLightSlashIcon } from '@/assets/icons';
+import { EyeDarkIcon, EyeDarkSlashIcon, EyeLightIcon, EyeLightSlashIcon } from '@/assets/icons';
 import SelectableTextCell from '@/components/ui/Table/SelectableTextCell';
 import { decryptPassword } from '@libs/common/utils/encryptPassword';
 import copyToClipboard from '@/utils/copyToClipboard';
@@ -25,6 +32,8 @@ import { decodeBase64 } from '@libs/common/utils/getBase64String';
 import type EncryptedPasswordObject from '@libs/common/types/encryptPasswordObject';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import useThemeStore from '@/store/useThemeStore';
+import THEME from '@libs/common/constants/theme';
 import EnterSafePinDialog from './EnterSafePinDialog';
 
 interface PasswordCellProps {
@@ -37,6 +46,8 @@ const PasswordCell: React.FC<PasswordCellProps> = ({ accountPassword, isInput = 
   const placeholder = '********';
   const [password, setPassword] = useState(placeholder);
   const isVisible = password !== placeholder;
+  const resolvedTheme = useThemeStore((state) => state.getResolvedTheme());
+  const isDarkMode = resolvedTheme === THEME.dark;
 
   const [isOpen, setIsOpen] = useState('');
 
@@ -125,6 +136,13 @@ const PasswordCell: React.FC<PasswordCellProps> = ({ accountPassword, isInput = 
     </button>
   );
 
+  const getEyeIcons = () =>
+    isDarkMode
+      ? { closed: EyeLightIcon, opened: EyeLightSlashIcon }
+      : { closed: EyeDarkIcon, opened: EyeDarkSlashIcon };
+
+  const { closed: closedIcon, opened: openedIcon } = getEyeIcons();
+
   return (
     <>
       <div className={cn('flex flex-row items-center gap-4', { 'justify-between': !isInput })}>
@@ -140,6 +158,7 @@ const PasswordCell: React.FC<PasswordCellProps> = ({ accountPassword, isInput = 
               void handleCopyPassword();
             }}
             icon={getCopyButton()}
+            variant="dialog"
           />
         ) : (
           <SelectableTextCell
@@ -155,7 +174,7 @@ const PasswordCell: React.FC<PasswordCellProps> = ({ accountPassword, isInput = 
             onClick={() => handleShowPassword()}
           >
             <img
-              src={isVisible ? EyeLightIcon : EyeLightSlashIcon}
+              src={isVisible ? closedIcon : openedIcon}
               alt="eye"
               className="h-6 min-h-6 w-6 min-w-6"
             />

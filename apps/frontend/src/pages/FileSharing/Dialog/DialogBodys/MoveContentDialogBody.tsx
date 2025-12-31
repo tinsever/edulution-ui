@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -133,56 +140,50 @@ const MoveContentDialogBody: React.FC<MoveContentDialogBodyProps> = ({
       ? `${t('moveItemDialog.selectedItem')}: ${decodeURIComponent(moveOrCopyItemToPath.filename)}`
       : t('filesharing.selectFile');
 
-  const footer = (
-    <Input
-      title={t('moveItemDialog.selectedItem')}
-      value={selectedInputValue}
-      variant="dialog"
-      className="h-10"
-    />
-  );
-
   const visibleColumns = [FILESHARING_TABLE_COLUM_NAMES.SELECT_FILENAME];
   const columns: ColumnDef<DirectoryFileDTO>[] = getFileSharingTableColumns(visibleColumns, onFilenameClick);
 
   return (
-    <>
+    <div className="space-y-2">
       <WebdavShareSelectDropdown
         webdavShare={webdavShare}
         showRootOnly={showRootOnly}
       />
-      <div className="text-background">
-        <div className="pb-2">
-          <DirectoryBreadcrumb
-            path={currentPath}
-            onNavigate={handleBreadcrumbNavigate}
-            showHome={showHome}
-            hiddenSegments={getHiddenSegments()}
-            showTitle={false}
-          />
-        </div>
-        <div className="w-full">{isLoading ? <HorizontalLoader className="w-[99%]" /> : <div className="h-1" />}</div>
-        <div className="h-[45vh] max-h-[45vh] overflow-auto scrollbar-thin">
-          <ScrollableTable
-            columns={columns}
-            data={files}
-            selectedRows={moveOrCopyItemToPath ? { [moveOrCopyItemToPath.filePath]: true } : {}}
-            onRowSelectionChange={handleRowSelectionChange}
-            applicationName={APPS.FILE_SHARING}
-            getRowId={(row) => row.filePath}
-            showHeader={false}
-            textColorClassname="text-background"
-            showSelectedCount={false}
-            filterKey="select-filename"
-            filterPlaceHolderText="filesharing.filterPlaceHolderText"
-            enableRowSelection={enableRowSelection}
-            getRowDisabled={getRowDisabled}
-            isDialog
-          />
-        </div>
+
+      <DirectoryBreadcrumb
+        path={currentPath}
+        onNavigate={handleBreadcrumbNavigate}
+        showHome={showHome}
+        hiddenSegments={getHiddenSegments()}
+        showTitle={false}
+      />
+      <div className="w-full">{isLoading ? <HorizontalLoader /> : <div className="h-1" />}</div>
+      <div className="h-[45vh] max-h-[45vh]">
+        <ScrollableTable
+          columns={columns}
+          data={files}
+          selectedRows={moveOrCopyItemToPath ? { [moveOrCopyItemToPath.filePath]: true } : {}}
+          onRowSelectionChange={handleRowSelectionChange}
+          applicationName={APPS.FILE_SHARING}
+          getRowId={(row) => row.filePath}
+          showHeader={false}
+          textColorClassname="text-background"
+          showSelectedCount={false}
+          filterKey="select-filename"
+          filterPlaceHolderText="filesharing.filterPlaceHolderText"
+          enableRowSelection={enableRowSelection}
+          getRowDisabled={getRowDisabled}
+          isDialog
+        />
       </div>
-      <div className="pt-2">{footer}</div>
-    </>
+      <Input
+        title={t('moveItemDialog.selectedItem')}
+        value={selectedInputValue}
+        variant="dialog"
+        readOnly
+        disabled
+      />
+    </div>
   );
 };
 

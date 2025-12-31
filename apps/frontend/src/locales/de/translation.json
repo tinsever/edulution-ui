@@ -21,7 +21,9 @@
     "isVisibleEndDate": "Aktiv bis",
     "isActiveOrExpired": "Aktiv/Abgelaufen",
     "activeFrom": "Aktiv von",
+    "activeFromPlaceholder": "ab sofort",
     "activeUntil": "Aktiv bis",
+    "activeUntilPlaceholder": "unbegrenzt gültig",
     "appTitle": "Info Board",
     "description": "Hier findest du deine aktuellen Mitteilungen",
     "filterPlaceHolderText": "Suche nach Kategoriename",
@@ -47,8 +49,8 @@
     "deleteBulletins": "{{count}} Mitteilungen löschen",
     "editBulletin": "Mitteilung bearbeiten",
     "createBulletin": "Mitteilung erstellen",
-    "confirmSingleDelete": "Soll diese Mitteilung wirklich gelöscht werden?",
-    "confirmMultiDelete": "Sollen diese Mitteilungen wirklich gelöscht werden?",
+    "confirmDelete": "Soll diese Mitteilung wirklich gelöscht werden?",
+    "confirmDelete_other": "Sollen diese {{count}} Mitteilungen wirklich gelöscht werden?",
     "rowsSelected": "{{selected}} von {{total}} Mitteilungen ausgewählt",
     "rowSelected": "{{selected}} von {{total}} Mitteilung ausgewählt",
     "cancel": "Abbrechen",
@@ -87,6 +89,7 @@
       "unauthorizedCreateCategory": "Keine Berechtigung, um diese Kategorie zu erstellen",
       "unauthorizedDeleteCategory": "Keine Berechtigung, um diese Kategorie zu löschen",
       "unauthorizedUpdateCategory": "Keine Berechtigung, um diese Kategorie zu aktualisieren",
+      "attachmentNotFound": "Anhang nicht gefunden",
       "attachmentDeletionFailed": "Löschen eines Anhangs ist fehlgeschlagen"
     }
   },
@@ -98,7 +101,9 @@
     "dropIconDescription": "Ziehe ein Bild hierher oder klicke, um ein Bild auszuwählen. Unterstützte Formate: SVG, WEBP"
   },
   "forwarding": {
-    "sidebar": "Weiterleitung"
+    "sidebar": "Weiterleitung",
+    "behaviorAtSidebarClick": "Schnellzugriff beim Öffnen der App",
+    "forwardDirectly": "Direkt beim Öffnen der App weiterleiten (falls deaktiviert, muss der Nutzer mit einem weiteren Klick bestätigen)"
   },
   "frame": {
     "sidebar": "Frame"
@@ -113,15 +118,9 @@
     "mobileAccess": {
       "title": "Mobiler Zugriff",
       "manual": "Anleitung",
-      "manualSetup": "Manuelles Einrichten",
       "setupWithQrCode": "Einrichtung via QR-Code",
-      "accessData": "Zugangsdaten",
       "content": "Du kannst von vielen mobilen Geräten aus auf den Schulserver zugreifen. Drücke auf Anleitung, um zu starten.",
-      "scanAccessInfo": "Um die Zugangsdaten zu übertragen, bitte folgenden QR-Code mit der {{ applicationName }} App scannen.",
-      "manualAccessInfo": "Gib die Anmeldedaten manuell in der {{ applicationName }} App ein. Das folgende Beispiel zeigt, wie die einzelnen Felder auszufüllen sind.",
-      "nextStepPreview": "Im nächsten Schritt kannst du die Zugangsdaten übertragen.",
-      "downloadDirect": "Oder lade die App direkt herunter:",
-      "downloadApp": "Lade hier die {{ applicationName }} App herunter:"
+      "scanAccessInfo": "Um die Zugangsdaten zu übertragen, bitte folgenden QR-Code mit der edulution App scannen."
     },
     "quota": {
       "title": "Quotas",
@@ -178,7 +177,8 @@
       "PasswordMismatch": "Aktuelles Passwort stimmt nicht",
       "PasswordChangeFailed": "Passwort ändern fehlgeschlagen",
       "GetUsersQuotaFailed": "Abrufen der Benutzerkontingente fehlgeschlagen.",
-      "GetSchoolsFailed": "Abrufen der Schulen fehlgeschlagen"
+      "GetSchoolsFailed": "Abrufen der Schulen fehlgeschlagen",
+      "GetLmnVersionFailed": "Abrufen der Linuxmuster-Version fehlgeschlagen."
     }
   },
   "ticketsystem": {
@@ -209,7 +209,13 @@
       "mailAddress": "E-Mail-Adresse",
       "noMailConfigured": "E-Mail-App ist nicht konfiguriert. Bitte kontaktiere den Systemadministrator.",
       "syncAccountAdded": "Konto für Sync-Job hinzugefügt.",
-      "syncAccountDeleted": "Konto für Sync-Job gelöscht."
+      "syncAccountDeleted": "Konto für Sync-Job gelöscht.",
+      "confirmDeleteSyncJob_other": "Möchtest du diese {{count}} Sync-Jobs wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirmDeleteSyncJob": "Möchtest du diesen Sync-Job wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteSyncJobs": "{{count}} Sync-Jobs löschen",
+      "deleteSyncJob": "Sync-Job löschen",
+      "confirmDeleteProviderConfig": "Möchtest du diese E-Mail-Provider-Konfiguration wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteProviderConfig": "E-Mail-Provider-Konfiguration löschen"
     }
   },
   "chat": {
@@ -221,7 +227,8 @@
     "automaticLoginFailed": "Automatischer Login fehlgeschlagen",
     "uploadOrFetchAttachmentFailed": "Fehler beim Hochladen des Anhangs",
     "fileGenerationFailed": "Datei konnte nicht generiert werden",
-    "requestTooLarge": "Deine Anfrage ist zu groß. Falls du Medien angehängt hast, versuche diese zu komprimieren oder zu entfernen"
+    "requestTooLarge": "Deine Anfrage ist größer als {{limit}} KB. Falls du Medien angehängt hast, versuche diese zu komprimieren oder zu entfernen.",
+    "fileTooLarge": "Die Datei ist größer als {{limit}} MB. Bitte komprimiere die Datei oder wähle eine kleinere."
   },
   "conferences": {
     "errors": {
@@ -268,13 +275,14 @@
     "create": "Konferenz erstellen",
     "delete": "Löschen",
     "deleteConference": "Konferenz löschen",
-    "deleteConferences": "{{count}} Konferenzen löschen",
+    "deleteConferences": "Konferenz löschen",
+    "deleteConferences_other": "{{count}} Konferenzen löschen",
     "editConference": "Konferenz bearbeiten",
     "conferenceUpdatedSuccessfully": "Konferenz erfolgreich gespeichert ",
     "conferenceFetchedSuccessfully": "Konferenzen erfolgreich aktualisiert ",
     "conferenceCreatedSuccessfully": "Konferenz erfolgreich erstellt",
-    "confirmSingleDelete": "Soll diese Konferenz wirklich gelöscht werden?",
-    "confirmMultiDelete": "Sollen diese Konferenzen wirklich gelöscht werden?",
+    "confirmDelete": "Soll diese Konferenz wirklich gelöscht werden?",
+    "confirmDelete_other": "Sollen diese {{count}} Konferenzen wirklich gelöscht werden?",
     "name": "Name der Konferenz",
     "conference": "Konferenz",
     "password": "Passwort",
@@ -333,6 +341,12 @@
     "rowSelected": "{{selected}} von {{total}} Datei ausgewählt",
     "fileWithSameNameAlreadyExists": "Eine Datei mit diesem Namen existiert bereits.",
     "folderWithSameNameAlreadyExists": "Ein Ordner mit diesem Namen existiert bereits.",
+    "currentName": "Aktueller Name",
+    "sameNameAsOriginal": "Bitte geben Sie einen anderen Namen ein",
+    "placeholder": {
+      "filename": "Name",
+      "extension": ".ext"
+    },
     "errors": {
       "FileNotFound": "Datei nicht gefunden",
       "MountPointsNotFound": "Laufwerke nicht gefunden",
@@ -385,6 +399,14 @@
       "zipFilesAreUploading": "Dateien werden in Ordnerstruktur hochgeladen",
       "fileIsUploading": "{{filename}} wird hochgeladen"
     },
+    "textEditor": {
+      "unsavedChanges": "Ungespeicherte Änderungen",
+      "unsavedChangesMessage": "Sie haben ungespeicherte Änderungen. Was möchten Sie tun?",
+      "discard": "Verwerfen",
+      "saving": "Speichern...",
+      "saveSuccess": "Datei erfolgreich gespeichert",
+      "saveError": "Datei konnte nicht gespeichert werden"
+    },
     "tooltips": {
       "folderNameRequired": "Ordnername ist erforderlich",
       "FileNameRequired": "Dateiname ist erforderlich",
@@ -403,10 +425,10 @@
       "isActive": "Aktiv",
       "fileLink": "Freigabe-Link",
       "invitedAttendees": "Eingeladen",
-      "confirmMultiDelete": "Sollen diese Freigabe-Links zu den folgenden Inhalten wirklich gelöscht werden?",
-      "confirmSingleDelete": "Soll dieser Freigabe-Link zu folgendem Inhalt wirklich gelöscht werden?",
+      "confirmDelete": "Soll dieser Freigabe-Link wirklich gelöscht werden?",
+      "confirmDelete_other": "Sollen diese {{count}} Freigabe-Links wirklich gelöscht werden?",
       "deleteFileLink": "Freigabe-Link löschen",
-      "deleteFileLinks": "Freigabe-Links löschen",
+      "deleteFileLink_other": "Freigabe-Links löschen",
       "selectPersonsOrGroupsWhoCanAccess": "Beschränke Personen oder Gruppen, die Zugriff auf diesen Inhalt haben",
       "isAccessibleBy": "Zugänglich für",
       "isPasswordProtected": "Passwort",
@@ -497,6 +519,18 @@
     "invalidQuota": "Die Quota muss der Dokumentation entsprechend angegeben werden",
     "invalidMailQuota": "Die E-Mailquota muss als Zahl in MB angegeben werden",
     "name": "Name",
+    "confirmDeleteGroup": "Möchtest du diese Gruppe wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteGroup": "{{type}} löschen",
+    "project": {
+      "createSuccess": "Projekt erfolgreich erstellt",
+      "updateSuccess": "Projekt erfolgreich aktualisiert",
+      "deleteSuccess": "Projekt erfolgreich gelöscht"
+    },
+    "sessions": {
+      "createSuccess": "Sitzung erfolgreich erstellt",
+      "updateSuccess": "Sitzung erfolgreich aktualisiert",
+      "deleteSuccess": "Sitzung erfolgreich gelöscht"
+    },
     "mailQuota": "E-Mail Quota (MB)",
     "proxyAddresses": "Proxy E-Mail-Adressen",
     "descriptionPlaceholder": "Kurze Beschreibung des Projekts",
@@ -586,6 +620,7 @@
     "pdfDescription": "Erzeuge eine PDF Datei um die Passwörter für diese Schulklassen auszudrucken",
     "csvDescription": "Erzeuge eine CSV Datei um die Passwörter für diese Schulklassen auszudrucken",
     "printOneItemPerPage": "Drucke ein Passwort pro Seite",
+    "shouldSplitNamesInCsv": "Vor- und Nachname in getrennten Spalten (funktioniert erst ab Linuxmuster 7.3)",
     "selectSavedSession": "Aus gespeicherten Sitzungen wählen",
     "saveSession": "Sitzung speichern",
     "editSession": "Sitzung editieren",
@@ -616,7 +651,9 @@
       "proxyAdressDescription": "URL des Veyon-WebAPI-Proxy",
       "proxyAdressPlaceholder": "http://localhost:11080",
       "createConfig": "Konfiguration erstellen",
-      "editConfig": "Konfiguration bearbeiten"
+      "editConfig": "Konfiguration bearbeiten",
+      "deleteConfig": "Konfiguration löschen",
+      "confirmDeleteConfig": "Soll diese Veyon-Proxy-Konfiguration wirklich gelöscht werden?"
     },
     "selectSchool": {
       "title": "Schule auswählen",
@@ -652,6 +689,14 @@
     "noFormula": "Das Formular ist nicht lesbar.",
     "noAnswer": "Es sind noch keine Antworten verfügbar.",
     "canSubmitMultiple": "Erlaube Mehrfachantworten.",
+    "export": {
+      "exportToPDF": "Als PDF exportieren",
+      "saveInPDF": "Als PDF speichern",
+      "processing": "Export wird verarbeitet...",
+      "success": "Export erfolgreich",
+      "error": "Fehler beim Exportieren",
+      "warning": "Einige Fragen können im PDF-Export nicht korrekt angezeigt werden. Dazu gehören unter anderem der Datei-Upload, die Bildauswahl und das Passwortfeld."
+    },
     "editor": {
       "inputFieldTitle": "Eingabefeld",
       "new": "Neu (Leer)",
@@ -659,6 +704,11 @@
       "fileUploadError": "Die Datei konnte nicht hochgeladen werden, bitte versuche es später erneut.",
       "fileDeletionSuccess": "Die Datei wurde erfolgreich gelöscht.",
       "saveSurveySuccess": "Die Umfrage wurde gespeichert.",
+      "surveyPlaceHolder": "Klicke unten auf die Schaltfläche \"Frage hinzufügen\", um mit der Erstellung deines Formulars zu beginnen.",
+      "surveyPlaceholderDescription": "Klicke unten auf die Schaltfläche \"Frage hinzufügen\", um mit der Erstellung deines Formulars zu beginnen.",
+      "surveyPlaceholderDescriptionMobile": "Klicke unten auf die Schaltfläche \"Frage hinzufügen\", um mit der Erstellung deines Formulars zu beginnen.",
+      "pagePlaceHolder": "Klicke unten auf die Schaltfläche \"Frage hinzufügen\", um der Seite ein neues Element hinzuzufügen.",
+      "panelPlaceHolder": "Klicke unten auf \"Frage hinzufügen\", um dem Bedienfeld ein neues Element hinzuzufügen.",
       "reset": "Verwerfen",
       "addDescription": "Beschreibung hinzufügen",
       "expectingUserInput": "Hier wird die Antwort des Teilnehmers erwartet, ... ",
@@ -669,6 +719,10 @@
         "userMessage": "Zur Verfügung stehende Vorlagen können hier geladen werden.",
         "adminMessage": "Um deine aktuelle Umfrage als Vorlage zu veröffentlichen, klicke auf 'Speichern'. Vorhandene Vorlagen können hier gelöscht oder geladen werden.",
         "emptyMessage": "Es sind noch keine Vorlagen vorhanden",
+        "upload": {
+          "success": "Vorlage erfolgreich gespeichert",
+          "error": "Die Vorlage konnte nicht gespeichert werden"
+        },
         "deletion": {
           "title": "Vorlage löschen",
           "message": "Soll die Vorlage wirklich gelöscht werden?",
@@ -683,6 +737,15 @@
         "addQuestionTitle": "Titel hinzufügen",
         "questionDescription": "Beschreibung",
         "addQuestionDescription": "Beschreibung hinzufügen",
+        "rowsAndColumns": "Zeilen und Spalten Bearbeiten",
+        "columns": "Spalten",
+        "addColumn": "Spalte hinzufügen",
+        "newColumn": "Neue Spalte",
+        "removeColumn": "Spalte entfernen",
+        "rows": "Zeilen",
+        "addRow": "Zeile hinzufügen",
+        "newRow": "Neue Zeile",
+        "removeRow": "Zeile entfernen",
         "limit": "Grenzwert",
         "nullLimit": "Ein Grenzwert von 0 bedeutet, dass die Option unbeschränkt verfügbar ist.",
         "backendLimiters": "Auswahlmöglichkeiten begrenzen",
@@ -739,9 +802,10 @@
   "surveys": {
     "rowsSelected": "{{selected}} von {{total}} Umfragen ausgewählt",
     "rowSelected": "{{selected}} von {{total}} Umfrage ausgewählt",
-    "confirmMultiDelete": "Sollen diese Umfragen wirklich gelöscht werden?",
-    "confirmSingleDelete": "Soll die Umfrage wirklich gelöscht werden?",
-    "deleteSurveys": "Lösche {{count}} Umfragen",
+    "confirmDelete": "Soll diese Umfrage wirklich gelöscht werden?",
+    "confirmDelete_other": "Sollen diese {{count}} Umfragen wirklich gelöscht werden?",
+    "deleteSurveys_other": "Lösche {{count}} Umfragen",
+    "deleteSurveys": "Lösche Umfrage",
     "deletedSurveys": "{{count}} Umfragen erfolgreich gelöscht",
     "deleteSurvey": "Umfrage Löschen",
     "deletedSurvey": "Umfrage erfolgreich gelöscht",
@@ -896,6 +960,7 @@
     },
     "delete": "Löschen",
     "description": {
+      "dashboard": "Hier kannst du alle Einstellungen vornehmen.",
       "ticketsystem": "Hier kannst du alle Einstellungen vornehmen.",
       "mail": "Hier kannst du alle Einstellungen vornehmen.",
       "chat": "Hier kannst du alle Einstellungen vornehmen.",
@@ -922,8 +987,8 @@
       "linuxmuster": "Hier kannst du alle Einstellungen vornehmen.",
       "whiteboard": "Hier kannst du alle Einstellungen vornehmen.",
       "bulletinboard": "Konfiguriere hier die Nutzergruppen, die Zugriff auf die App Info Board haben. Über die Kategorieren kann gesteuert werden, welche Mitteilungen Nutzern angezeigt werden.",
-      "forwarded": "Weiterleitung: Einfach den Link zur Webanwendung unter URL eintragen.",
-      "framed": "Frame: Einfach den Link zur Webanwendung unter URL eintragen.",
+      "forwarding": "Weiterleitung: Einfach den Link zur Webanwendung unter URL eintragen.",
+      "frame": "Frame: Einfach den Link zur Webanwendung unter URL eintragen.",
       "embedded": "Eingebettet: Hier kann eine eigene Webanwendung im Editor erstellt werden."
     },
     "globalSettings": {
@@ -961,6 +1026,18 @@
         "uploadDarkLogo": "Dunkles Logo hochladen",
         "deleteSuccessful": "Logo wurde erfolgreich gelöscht"
       },
+      "theme": {
+        "title": "Design-Anpassung",
+        "primaryColor": "Primärfarbe",
+        "primaryDescription": "Hauptfarbe für Schaltflächen, Links und Hervorhebungen",
+        "secondaryColor": "Sekundärfarbe",
+        "secondaryDescription": "Sekundärfarbe für Text und Rahmen",
+        "ciLightGreen": "Markengrün",
+        "ciLightGreenDescription": "Grüne Markenfarbe für Farbverläufe und Logos",
+        "ciLightBlue": "Markenblau",
+        "ciLightBlueDescription": "Blaue Markenfarbe für Farbverläufe und Logos",
+        "resetToDefaults": "Auf Standard zurücksetzen"
+      },
       "organisationInfo": {
         "title": "Organisationsinformationen",
         "descriptionSchool": "Trage die offiziellen Angaben deiner Organisation ein. Diese Informationen werden in der edulution App angezeigt. Bitte gib den Namen, die Straße, die Postleitzahl und optional die Website der Schule an.",
@@ -985,16 +1062,22 @@
       "totpResetSuccess": "TOTP für {{username}} wurde erfolgreich zurückgesetzt.",
       "setAdminGroupTitle": "Administratorengruppe festlegen",
       "setAdminGroupDescription": "Hier können zusätzliche Administratoren definiert werden. Der Globale Administrator beleibt dabei erhalten.",
-      "setAdminGroupSelectDescription": "Über die Sucheingabe können Gruppen ausgewählt werden."
+      "setAdminGroupSelectDescription": "Über die Sucheingabe können Gruppen ausgewählt werden.",
+      "setAdminGroupWarning": "Es muss mindestens eine Administratorengruppe ausgewählt sein."
     },
     "info": {
       "title": "Info"
     },
+    "lmnVersion": { "title": "Linuxmuster Versionsübersicht" },
     "appconfig": {
       "position": {
         "title": "Sortierung",
         "description": "An welcher Position soll die App in der App-Leiste und in den Einstellungen angezeigt werden?"
       },
+      "deleteEntries": "Eintrag löschen",
+      "deleteEntries_other": "{{count}} Einträge löschen",
+      "confirmDeleteEntries": "Möchtest du diesen Eintrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirmDeleteEntries_other": "Möchtest du diese {{count}} Einträge wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "sections": {
         "onlyOffice": {
           "title": "Only Office Integration",
@@ -1016,9 +1099,22 @@
           "title": "Allgemeine Einstellungen",
           "description": ""
         },
+        "drawio": {
+          "title": "Draw.io Integration",
+          "description": "Konfiguriere Draw.io zum Erstellen von Diagrammen und Flussdiagrammen."
+        },
+        "proxyConfig": {
+          "title": "Proxy-Konfiguration",
+          "description": "Hier kann eine eigene Proxy-Konfiguration für Traefik hinterlegt werden. Dabei kann entweder über die Eingabefelder mithilfe einer Vorlage gearbeitet werden, oder direkt im Expertenmodus eine Konfiguration im YAML-Format erstellt werden. <br/><strong>Achtung:</strong> Eine falsche Konfiguration könnte dazu führen, dass die Anwendung nicht mehr erreichbar ist."
+        },
+
         "docker": {
           "title": "Docker Anwendungen",
-          "description": "Um die erweiterten Dienste nutzen zu können, können hier die benötigten Container-Anwendungen installiert und gestartet werden."
+          "description": "Um die erweiterten Dienste nutzen zu können, können hier die benötigten Container-Anwendungen installiert und gestartet werden.",
+          "confirmMultiDeleteContainer": "Möchtest du diese Container wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirmSingleDeleteContainer": "Möchtest du diesen Container wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+          "deleteContainers_other": "{{count}} Container löschen",
+          "deleteContainers": "Container löschen"
         },
         "veyon": {
           "title": "Veyon Proxy",
@@ -1031,11 +1127,19 @@
           "title": "WebDAV",
           "sectionTitle": "WebDAV-Shares",
           "description": "Hier können WebDAV-Server für den Dateimanager eingerichtet werden.",
-          "filterPlaceHolderText": "Suche nach WebDAV-Share"
+          "filterPlaceHolderText": "Suche nach WebDAV-Share",
+          "deleteWebdavShare": "WebDAV-Share löschen",
+          "confirmDeleteWebdavShare": "Soll dieses WebDAV-Share wirklich gelöscht werden?"
         },
         "webdavServer": {
           "title": "WebDAV-Server",
-          "filterPlaceHolderText": "Suche nach WebDAV-Server"
+          "filterPlaceHolderText": "Suche nach WebDAV-Server",
+          "deleteWebdavServer": "WebDAV-Server löschen",
+          "confirmDeleteWebdavServer": "Soll dieser WebDAV-Server wirklich gelöscht werden?",
+          "deleteWarning": {
+            "title": "Löschen nicht möglich",
+            "description": "Der WebDAV-Server '{{serverName}}' wird von {{count}} Share(s) verwendet: {{shares}}. Bitte lösche die abhängigen Shares zuerst."
+          }
         },
         "files": {
           "title": "Dateien",
@@ -1156,14 +1260,25 @@
       "enterSavePin": "Bitte Tresor-PIN eingeben.",
       "wrongSafePin": "PIN ist falsch.",
       "enterSafePin": "Bitte PIN zum Entschlüsseln eingeben.",
-      "safePinDescription": "Zur Verschlüsselung der Zugangsdaten wird eine PIN benötigt. Diese PIN ist für niemanden sichtbar und wird nicht gespeichert."
+      "safePinDescription": "Zur Verschlüsselung der Zugangsdaten wird eine PIN benötigt. Diese PIN ist für niemanden sichtbar und wird nicht gespeichert.",
+      "confirmMultiDeleteAccount": "Möchtest du diese Konten wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirmSingleDeleteAccount": "Möchtest du dieses Konto wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteUserAccounts": "{{count}} Konten löschen",
+      "deleteUserAccount": "Konto löschen",
+      "cryptoNotAvailable": "Verschlüsselung ist nur über HTTPS verfügbar. Bitte verwende eine sichere Verbindung.",
+      "password": "Passwort ändern",
+      "mfa": "Zwei-Faktor-Authentifizierung"
     },
     "mails": {
       "title": "E-Mail"
     },
     "mobileAccess": {
       "title": "App-Zugriff",
-      "description": "Hier kannst du für den mobilen Zugriff auf deine Dateien die {{ applicationName }} App einrichten. Aktuell nur für Apple iOS verfügbar."
+      "description": "Hier kannst du den mobilen Zugriff für die edulution App einrichten.",
+      "docsDescription": "Den Download-Link zur edulution App und wie du sie einrichtest findest in der edulution Doku.",
+      "button": "Doku öffnen",
+      "setup": "Einrichten mit QR-Code",
+      "qrCode": "QR-Code"
     },
     "faq": "FAQ",
     "externalIntegration": "Externe Anbindung",
@@ -1181,7 +1296,19 @@
       "german": "Deutsch",
       "english": "Englisch",
       "french": "Französisch",
-      "system": "Systemsprache"
+      "system": "Systemsprache",
+      "selectLanguage": "Sprache auswählen"
+    },
+    "themeMode": {
+      "title": "Erscheinungsbild",
+      "description": "Wähle das Erscheinungsbild der Benutzeroberfläche.",
+      "system": "System",
+      "dark": "Dunkel",
+      "light": "Hell"
+    },
+    "userinterface": {
+      "title": "Benutzeroberfläche",
+      "description": "Hier kannst du Einstellungen zur Benutzeroberfläche vornehmen."
     },
     "addTotp": {
       "title": "Zwei-Faktor-Authentisierung einrichten",
@@ -1201,9 +1328,12 @@
       "notAbleToCompressImage": "Bild konnte nicht komprimiert werden."
     }
   },
+  "generalsettings": {
+    "title": "Allgemein"
+  },
   "forwardingpage": {
     "action": "Über diesen Link gelangen Sie zur externen Seite des Anbieters.",
-    "description": "Die Anwendung öffnet sich in einem neuen Fenster. Es ist keine weitere Autorisierung nötig.",
+    "description": "Die Anwendung öffnet sich in einem neuen Fenster.",
     "missing_link": "Link fehlt"
   },
   "menu": "MENÜ",
@@ -1233,6 +1363,8 @@
     "infoQrCodeExpired": "Zeit für Login mit edulution.io APP abgelaufen."
   },
   "common": {
+    "more": "Mehr",
+    "less": "Weniger",
     "refreshPage": "Seite neu laden",
     "showMore": "Mehr anzeigen",
     "visibility": "Sichtbarkeit",
@@ -1249,6 +1381,7 @@
     "share": "Teilen",
     "answers": "Antworten",
     "error": "Fehler",
+    "entry": "Eintrag {{index}}",
     "errors": {
       "dbAccessFailed": "Datenbankzugriff fehlgeschlagen",
       "directoryNotCreated": "Erstellen des Verzeichnisses fehlgeschlagen",
@@ -1341,6 +1474,8 @@
     "start": "Starten",
     "close": "Schließen",
     "delete": "Löschen",
+    "deleting": "Löschen...",
+    "noItemsSelected": "Keine Elemente ausgewählt",
     "connect": "Verbinden",
     "custom": "Benutzerdefiniert",
     "select": "Wählen...",
@@ -1385,15 +1520,13 @@
     "pathDescription": "Bitte eine URL eintragen.",
     "apptype": "Art der Anwendung",
     "native": "Native Unterstützung",
-    "forwarded": "Weiterleitung",
+    "forwarding": "Weiterleitung",
     "embedded": "Eingebettet",
     "saved": "Konfiguration gespeichert!",
     "url": "URL",
     "urlDescription": "Bitte eine URL zur Applikation eintragen",
     "apiKey": "API-Schlüssel",
     "apiKeyDescription": "Der API-Schlüssel wird für die Authentifizierung verwendet",
-    "proxyConfig": "Proxy-Konfiguration",
-    "proxyConfigDescription": "Hier kann eine eigene Proxy-Konfiguration für Traefik hinterlegt werden. Dabei kann entweder über die Eingabefelder mithilfe einer Vorlage gearbeitet werden, oder direkt im Expertenmodus eine Konfiguration im YAML-Format erstellt werden. <br/><strong>Achtung:</strong> Eine falsche Konfiguration könnte dazu führen, dass die Anwendung nicht mehr erreichbar ist.",
     "expertMode": "Expertenmodus",
     "proxyPath": "Proxy Pfad",
     "proxyPathPlaceholder": "z.B. SOGo",
@@ -1425,7 +1558,9 @@
     "lastModified": "Zuletzt geändert",
     "type": "Typ",
     "isShared": "Geteilt",
-    "filesOrFoldersSelected": "{{selected}} von {{total}} Dateien/Ordnern ausgewählt"
+    "filesOrFoldersSelected": "{{selected}} von {{total}} Dateien/Ordnern ausgewählt",
+    "element": "Element",
+    "elements": "Elements"
   },
   "currentDirectory": "Aktuelles Verzeichnis",
   "filesharingUpload": {
@@ -1438,17 +1573,32 @@
     "dragDropClick": "Ziehen Sie Dateien hierher oder klicken Sie, um Dateien auszuwählen",
     "dropHere": "Hier loslassen",
     "filesToUpload": "Dateien zum Hochladen",
-    "overwriteWarningTitleFile": "Warnung: Datei existiert bereits",
-    "overwriteWarningTitleFiles": "Warnung: Dateien existieren bereits",
-    "overwriteWarningDescriptionFile": "Die folgende Datei wird überschrieben:",
-    "overwriteWarningDescriptionFiles": "Die folgenden Dateien werden überschrieben:",
-    "oversizedFilesDetected": "Zu große Dateien entdeckt",
+    "overwriteWarningTitle_one": "Warnung: Datei existiert bereits",
+    "overwriteWarningTitle_other": "Warnung: Dateien existieren bereits",
+    "overwriteWarningDescription_one": "Die folgende Datei wird überschrieben:",
+    "overwriteWarningDescription_other": "Die folgenden Dateien werden überschrieben:",
+    "overwriteFolderWarningTitle_one": "Warnung: Ordner existiert bereits",
+    "overwriteFolderWarningTitle_other": "Warnung: Ordner existieren bereits",
+    "overwriteFolderWarningDescription_one": "Der folgende Ordner wird überschrieben:",
+    "overwriteFolderWarningDescription_other": "Die folgenden Ordner werden überschrieben:",
+    "oversizedFileDetected_one": "Zu große Datei entdeckt:",
+    "oversizedFileDetected_other": "Zu große Dateien entdeckt:",
     "folderTooLargeTitle": "Zu viele Dateien im Ordner",
     "folderTooLargeDescription": "Der Ordner enthält mehr als 100 Dateien. Bitte wähle einen anderen Ordner oder reduziere die Anzahl der Dateien.",
-    "oversizedFileDetected": "Zu große Datei entdeckt!",
     "cannotUploadOversized": "Dateien, die größer als 50 MB sind, können nicht hochgeladen werden.",
     "addFiles": "Dateien hinzufügen",
     "addFolder": "Ordner hinzufügen",
+    "file": "Datei",
+    "files": "Dateien",
+    "creatingDirectoryStructure": "Ordnerstruktur wird angelegt",
+    "hiddenFiles": "versteckte & System-Dateien",
+    "replaceFiles": "Ersetzen",
+    "uploadNewOnly": "Nur neue Dateien hochladen",
+    "errors": {
+      "directoryCreationFailed": "Fehler beim Erstellen des Ordners",
+      "fileUploadFailed": "Fehler beim Hochladen des Ordner-Inhalts",
+      "uploadError": "Fehler beim Hochladen der Dateien"
+    },
     "preparingFolder": "Ordner wird vorbereitet"
   },
   "warnings": {
@@ -1498,7 +1648,8 @@
     "presentation": "Präsentation",
     "spreadsheet": "Tabelle",
     "vector": "Diagramm",
-    "compressed": "Archive"
+    "compressed": "Archive",
+    "code": "Code"
   },
   "fileCreateNewContent": {
     "documentFile": "Erstelle ein neues Dokument",
@@ -1519,8 +1670,29 @@
       "textFile": "Neue Textdatei",
       "spreadsheetFile": "Neue Tabelle",
       "presentationFile": "Neue Präsentation",
-      "documentFile": "Neues Dokument"
-    }
+      "documentFile": "Neues Dokument",
+      "json": "JSON-Datei (.json)",
+      "yaml": "YAML-Datei (.yaml)",
+      "yml": "YAML-Datei (.yml)",
+      "toml": "TOML-Datei (.toml)",
+      "xml": "XML-Datei (.xml)",
+      "cfg": "Konfigurationsdatei (.cfg)",
+      "ini": "INI-Datei (.ini)",
+      "env": "Umgebungsdatei (.env)",
+      "md": "Markdown-Datei (.md)",
+      "html": "HTML-Datei (.html)",
+      "css": "CSS-Datei (.css)",
+      "csv": "CSV-Datei (.csv)",
+      "sh": "Shell-Skript (.sh)",
+      "bat": "Batch-Datei (.bat)",
+      "ps1": "PowerShell-Skript (.ps1)",
+      "py": "Python-Skript (.py)",
+      "js": "JavaScript-Datei (.js)",
+      "customFile": "Andere Datei"
+    },
+    "customFile": "Erstelle eine neue Datei",
+    "moreFileTypes": "Weitere Dateitypen",
+    "lessFileTypes": "Weniger Dateitypen"
   },
   "fileRenameContent": {
     "placeholder": "Geben Sie den neuen Namen ein",
@@ -1679,6 +1851,8 @@
     "onlyOfficeUrlTitle": "OnlyOffice-URL",
     "onlyOfficeJwtSecretTitle": "OnlyOffice JWT Secret",
     "onlyOfficeJwtSecretDescription": "Gib hier den OnlyOffice JWT Secret Key an",
+    "drawioUrlTitle": "Draw.io URL",
+    "drawioUrlDescription": "Gib die URL der selbst gehosteten Draw.io-Instanz ein",
     "overrideDocumentVendorMSWithOOTitle": "OpenDocument als Standard-Dokumentenformat verwenden",
     "overrideDocumentVendorMSWithOODescription": "Soll anstatt der Microsoft Office Formate (docx, pptx, xlsx) das OpenDocument Format (odt, ods, odp) verwendet werden?",
     "mailImapUrlTitle": "URL",
@@ -1695,7 +1869,19 @@
       "light": "Hell",
       "dark": "Dunkel"
     },
-    "mailSogoThemeDisabled": "Deaktiviert, da der Mailserver nicht läuft."
+    "mailSogoThemeDisabled": "Deaktiviert, da der Mailserver nicht läuft.",
+    "mailSogoThemeUpdateCheckerTitle": "Theme-Versionsprüfung",
+    "mailSogoThemeUpdateCheckerDescription": "Prüfe, ob eine neue Version des aktuellen Themes verfügbar ist und aktualisiere es bei Bedarf.",
+    "updateChecker": {
+      "currentVersion": "Aktuelle Version",
+      "latestVersion": "Neueste Version",
+      "theme": "Theme",
+      "updateAvailable": "Eine neue Version ist verfügbar!",
+      "checkAgain": "Erneut prüfen",
+      "updateNow": "Jetzt aktualisieren",
+      "checkVersionSuccess": "Theme erfolgreich überprüft!",
+      "noData": "Keine Versionsinformationen verfügbar."
+    }
   },
   "preview": {
     "image": "Bildvorschau",
@@ -1703,10 +1889,18 @@
   },
   "containerApplication": {
     "dialogTitle": "{{applicationName}}-Plugins installieren",
+    "EDU_MANAGER_INSTALL_TOKEN": {
+      "title": "Installations-Token",
+      "description": "Bitte gib den Installations-Token ein, der im Edulution-Manager erstellt wurde."
+    },
     "EDULUTION_MAIL_HOSTNAME": {
       "title": "Hostname",
       "description": "Hostname des Mailservers. Dieser kann von der edulution Domain abweichen."
     }
+  },
+  "edulution-manager": {
+    "sidebar": "Edulution-Manager",
+    "title": "Edulution-Manager"
   },
   "dockerOverview": {
     "title": "Container-Übersicht",
@@ -1718,7 +1912,9 @@
     "filterPlaceHolderText": "Suche nach Container-Name",
     "port": "Port",
     "created": "Erstellt am",
-    "container-view": "Container"
+    "container-view": "Container",
+    "selectPluginForInstallationTitle": "Plugin zur Installation auswählen",
+    "selectPluginForInstallationDescription": "Wähle hier eine App aus, für die ein Plugin installiert werden soll."
   },
   "docker": {
     "error": {
@@ -1726,7 +1922,8 @@
       "dockerImageNotFound": "Docker Image konnte nicht gefunden werden",
       "dockerCreationError": "Docker Container konnte nicht erstellt werden",
       "dockerCommandExecutionError": "Docker Befehl konnte nicht ausgeführt werden",
-      "dockerContainerDeletionError": "Docker Container konnte nicht gelöscht werden"
+      "dockerContainerDeletionError": "Docker Container konnte nicht gelöscht werden",
+      "dockerUpdateError": "Docker Container konnte nicht aktualisiert werden"
     },
     "events": {
       "pullingImage": "Docker Image wird abgerufen...",
@@ -1738,7 +1935,9 @@
       "restartContainer": "Container neu gestartet.",
       "killContainer": "Container erzwungen gestoppt.",
       "containerCreationSuccessful": "Container erfolgreich erstellt.",
-      "containerCreationFailed": "Container konnte nicht erstellt werden."
+      "containerCreationFailed": "Container konnte nicht erstellt werden.",
+      "containerUpdateSuccessful": "{{containerName}} erfolgreich aktualisiert.",
+      "containerAlreadyUpToDate": "{{containerName}} ist bereits aktuell."
     },
     "status": {
       "running": "läuft",

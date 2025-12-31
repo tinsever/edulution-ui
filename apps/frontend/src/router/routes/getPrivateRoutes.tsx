@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React from 'react';
@@ -16,7 +23,7 @@ import getForwardedAppRoutes from '@/router/routes/getForwardedAppRoutes';
 import getFramedRoutes from '@/router/routes/getFramedRoutes';
 import getNativeAppRoutes from '@/router/routes/getNativeAppRoutes';
 import {
-  LANGUAGE_PATH,
+  USER_INTERFACE_PATH,
   MAILS_PATH,
   MOBILE_ACCESS_PATH,
   SECURITY_PATH,
@@ -26,7 +33,7 @@ import {
 import UserSettingsSecurityPage from '@/pages/UserSettings/Security/UserSettingsSecurityPage';
 import UserSettingsDetailsPage from '@/pages/UserSettings/Details/UserSettingsDetailsPage';
 import UserSettingsMailsPage from '@/pages/UserSettings/Mails/UserSettingsMailsPage';
-import LanguageSettingsPage from '@/pages/UserSettings/Language/LanguageSettingsPage';
+import UserInterfaceSettingsPage from '@/pages/UserSettings/Language/UserInterfaceSettingsPage';
 import UserSettingsMobileAccess from '@/pages/UserSettings/MobileAccess/MobileFileAccessSetupBox';
 import getSettingsRoutes from '@/router/routes/getSettingsRoutes';
 import getClassManagementRoutes from '@/router/routes/getClassManagementRoutes';
@@ -78,8 +85,8 @@ const getPrivateRoutes = (appConfigs: AppConfigDto[]) => (
         element={<UserSettingsMailsPage />}
       />
       <Route
-        path={LANGUAGE_PATH}
-        element={<LanguageSettingsPage />}
+        path={USER_INTERFACE_PATH}
+        element={<UserInterfaceSettingsPage />}
       />
       <Route
         path={MOBILE_ACCESS_PATH}

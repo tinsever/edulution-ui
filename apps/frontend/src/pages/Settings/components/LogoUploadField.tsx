@@ -1,20 +1,27 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React from 'react';
-import { Theme, ThemeType } from '@libs/common/constants/theme';
+import THEME from '@libs/common/constants/theme';
 import FileSelectButton from '@/components/ui/FileSelectButton';
-import DesktopLogo from '@/assets/logos/edulution.io_USER INTERFACE.svg';
-import clsx from 'clsx';
+import cn from '@libs/common/utils/className';
+import ThemeType from '@libs/common/types/themeType';
 
 type LogoUploadFieldProps = {
   variant: ThemeType;
@@ -44,14 +51,14 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
   changeText = 'Change file',
   accept = 'image/*',
   alt = 'Logo preview',
-  fallbackSrc = DesktopLogo,
+  fallbackSrc,
   className,
 }) => {
-  const backdropClass = variant === Theme.light ? 'bg-neutral-900' : 'bg-white';
+  const backdropClass = variant === THEME.light ? 'bg-neutral-900' : 'bg-white';
 
   return (
     <div
-      className={clsx(
+      className={cn(
         'relative flex flex-col items-center rounded-2xl border border-dashed border-gray-300 p-6 text-center shadow-sm hover:border-gray-400',
         backdropClass,
         uploading && 'pointer-events-none opacity-60',
@@ -60,15 +67,19 @@ const LogoUploadField: React.FC<LogoUploadFieldProps> = ({
       aria-busy={uploading}
       aria-live="polite"
     >
-      <img
-        key={cacheKey}
-        src={previewSrc || fallbackSrc}
-        alt={alt}
-        className="h-20 w-auto object-contain"
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).src = fallbackSrc;
-        }}
-      />
+      {(previewSrc || fallbackSrc) && (
+        <img
+          key={cacheKey}
+          src={previewSrc || fallbackSrc}
+          alt={alt}
+          className="h-20 w-auto object-contain"
+          onError={(e) => {
+            if (fallbackSrc) {
+              (e.currentTarget as HTMLImageElement).src = fallbackSrc;
+            }
+          }}
+        />
+      )}
 
       <div className="mt-3 grid w-full grid-cols-1 gap-2">
         <FileSelectButton

@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useMemo, useState } from 'react';
@@ -19,11 +26,12 @@ import cn from '@libs/common/utils/className';
 import type AppConfigOption from '@libs/appconfig/types/appConfigOption';
 import APPS from '@libs/appconfig/constants/apps';
 import AppConfigDto from '@libs/appconfig/types/appConfigDto';
-import APP_INTEGRATION_VARIANT from '@libs/appconfig/constants/appIntegrationVariants';
+import APP_INTEGRATION_VARIANT from '@libs/appconfig/constants/appIntegrationVariant';
 import { SETTINGS_PATH } from '@libs/appconfig/constants/appConfigPaths';
 import APP_CONFIG_OPTION_KEYS from '@libs/appconfig/constants/appConfigOptionKeys';
 import PageLayout from '@/components/structure/layout/PageLayout';
 import APPLICATION_NAME from '@libs/common/constants/applicationName';
+import getAppIconClassName from '@/utils/getAppIconClassName';
 import APP_CONFIG_OPTIONS from '../appConfigOptions';
 import AddAppConfigDialog from '../AddAppConfigDialog';
 import AppStoreFloatingButtons from './AppStoreFloatingButtons';
@@ -84,7 +92,7 @@ const AppStorePage: React.FC = () => {
         iconSrc: AppStoreIcon,
       }}
     >
-      <div className="space-2 flex max-h-[27rem] w-full flex-wrap gap-2 overflow-y-auto scrollbar-thin md:max-h-[36rem]">
+      <div className="space-2 flex w-full flex-wrap gap-2 overflow-y-auto scrollbar-thin">
         {APP_CONFIG_OPTIONS.map((item) => (
           <button
             key={item.id}
@@ -95,8 +103,8 @@ const AppStorePage: React.FC = () => {
             <Card
               key={item.id}
               className={cn(
-                'm-1 flex h-32 w-32 flex-col items-center overflow-hidden ease-in-out md:w-48 lg:transition-transform lg:duration-300 2xl:hover:scale-105',
-                selectedApp.id === item.id ? 'scale-105 bg-ciGreenToBlue' : '',
+                'm-1 flex h-32 w-32 flex-col items-center overflow-hidden ease-in-out md:w-48 2xl:transition-transform 2xl:duration-300 2xl:hover:scale-105',
+                selectedApp.id === item.id ? 'scale-105 bg-ciGreenToBlue text-white' : '',
                 getDisabledState(item) ? 'opacity-50' : '',
               )}
               variant="text"
@@ -105,7 +113,10 @@ const AppStorePage: React.FC = () => {
                 <img
                   src={item.icon}
                   alt={item.id}
-                  className="h-12 w-12 md:h-14 md:w-14"
+                  className={cn(
+                    'h-12 w-12 md:h-14 md:w-14',
+                    selectedApp.id !== item.id && getAppIconClassName(item.icon),
+                  )}
                 />
                 <p>{t(`${item.id}.sidebar`)}</p>
               </div>

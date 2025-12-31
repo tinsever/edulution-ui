@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import { Model } from 'mongoose';
@@ -17,8 +24,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import SurveyStatus from '@libs/survey/survey-status-enum';
 import SurveyErrorMessages from '@libs/survey/constants/survey-error-messages';
 import AttendeeDto from '@libs/user/types/attendee.dto';
-import CommonErrorMessages from '@libs/common/constants/common-error-messages';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import CustomHttpException from '../common/CustomHttpException';
 import SurveysController from './surveys.controller';
 import SurveysService from './surveys.service';
@@ -53,11 +60,13 @@ import mockGroupsService from '../groups/groups.service.mock';
 import SseService from '../sse/sse.service';
 import FilesystemService from '../filesystem/filesystem.service';
 import mockFilesystemService from '../filesystem/filesystem.service.mock';
+import mockCacheManager from '../common/cache-manager.mock';
 import SurveysAttachmentService from './surveys-attachment.service';
 import SurveysTemplateService from './surveys-template.service';
 import SurveyAnswerAttachmentsService from './survey-answer-attachments.service';
 import NotificationsService from '../notifications/notifications.service';
 import GlobalSettingsService from '../global-settings/global-settings.service';
+import { SurveysTemplate } from './surveys-template.schema';
 
 describe(SurveysController.name, () => {
   let controller: SurveysController;
@@ -90,9 +99,21 @@ describe(SurveysController.name, () => {
             limit: jest.fn().mockResolvedValueOnce([firstUsersSurveyAnswerAnsweredSurvey01]),
           },
         },
+        {
+          provide: getModelToken(SurveysTemplate.name),
+          useValue: {
+            find: jest.fn().mockReturnThis(),
+            findOne: jest.fn().mockReturnThis(),
+            findOneAndUpdate: jest.fn().mockReturnThis(),
+            findById: jest.fn().mockReturnThis(),
+            findByIdAndUpdate: jest.fn().mockReturnThis(),
+            create: jest.fn().mockReturnThis(),
+          },
+        },
         { provide: FilesystemService, useValue: mockFilesystemService },
         { provide: NotificationsService, useValue: pushMock },
         { provide: GlobalSettingsService, useValue: { getAdminGroupsFromCache: jest.fn() } },
+        { provide: CACHE_MANAGER, useValue: mockCacheManager },
       ],
     }).compile();
 
@@ -121,40 +142,6 @@ describe(SurveysController.name, () => {
 
       expect(status).toHaveBeenCalledWith(HttpStatus.CREATED);
       expect(json).toHaveBeenCalledWith('surveys/files/upload.png');
-    });
-
-    it('throws CustomHttpException on missing file (malformed upload)', () => {
-      const json = jest.fn();
-      const status = jest.fn().mockReturnValue({ json });
-
-      try {
-        controller.fileUpload(
-          undefined as unknown as Express.Multer.File,
-          { status } as unknown as import('express').Response,
-        );
-        fail('Expected to throw');
-      } catch (e) {
-        expect(e).toBeInstanceOf(CustomHttpException);
-        expect((e as Error).message).toBe(CommonErrorMessages.FILE_NOT_PROVIDED);
-        expect((e as CustomHttpException).getStatus()).toBe(HttpStatus.BAD_REQUEST);
-      }
-    });
-
-    it('throws CustomHttpException on disallowed mime types', () => {
-      const json = jest.fn();
-      const status = jest.fn().mockReturnValue({ json });
-
-      try {
-        controller.fileUpload(
-          { filename: 'file.txt', mimetype: 'text/plain' } as unknown as Express.Multer.File,
-          { status } as unknown as import('express').Response,
-        );
-        fail('Expected to throw');
-      } catch (e) {
-        expect(e).toBeInstanceOf(CustomHttpException);
-        expect((e as Error).message).toBe(CommonErrorMessages.FILE_UPLOAD_FAILED);
-        expect((e as CustomHttpException).getStatus()).toBe(HttpStatus.BAD_REQUEST);
-      }
     });
   });
 
@@ -308,8 +295,9 @@ describe(SurveysController.name, () => {
       SurveysAttachmentService.onSurveyRemoval = jest.fn().mockImplementation(() => {});
       surveyModel.deleteMany = jest.fn().mockResolvedValueOnce(true);
       surveyAnswerModel.deleteMany = jest.fn().mockReturnValue(true);
+      surveyService.throwErrorIfUserIsNotCreator = jest.fn().mockResolvedValueOnce(true);
 
-      await controller.deleteSurvey({ surveyIds: [idOfAnsweredSurvey01.toString()] });
+      await controller.deleteSurveys({ surveyIds: [idOfAnsweredSurvey01.toString()] }, firstMockJWTUser);
 
       expect(surveyService.deleteSurveys).toHaveBeenCalledWith([idOfAnsweredSurvey01.toString()]);
       expect(surveyAnswersService.onSurveyRemoval).toHaveBeenCalledWith([idOfAnsweredSurvey01.toString()]);
@@ -324,13 +312,15 @@ describe(SurveysController.name, () => {
       jest.spyOn(surveyService, 'deleteSurveys');
       jest.spyOn(surveyAnswersService, 'onSurveyRemoval');
 
+      surveyService.throwErrorIfUserIsNotCreator = jest.fn().mockResolvedValueOnce(true);
+
       surveyModel.deleteMany = jest
         .fn()
         .mockRejectedValue(new CustomHttpException(SurveyErrorMessages.DeleteError, HttpStatus.NOT_MODIFIED));
       surveyAnswerModel.deleteMany = jest.fn();
 
       try {
-        await controller.deleteSurvey({ surveyIds: [idOfAnsweredSurvey01.toString()] });
+        await controller.deleteSurveys({ surveyIds: [idOfAnsweredSurvey01.toString()] }, firstMockJWTUser);
       } catch (e) {
         expect(e).toBeInstanceOf(Error);
         expect(e instanceof Error && e.message).toBe(SurveyErrorMessages.DeleteError);
@@ -357,6 +347,8 @@ describe(SurveysController.name, () => {
         exec: jest.fn().mockResolvedValue(surveyAnswerAnsweredSurvey03),
       });
       surveyAnswerModel.findByIdAndUpdate = jest.fn().mockReturnValue(updatedSurveyAnswerAnsweredSurvey03);
+
+      surveyService.throwErrorIfSurveyIsNotAccessible = jest.fn().mockResolvedValueOnce(true);
 
       const attendee = {
         username: firstMockJWTUser.preferred_username,

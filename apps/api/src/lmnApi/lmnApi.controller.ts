@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import {
@@ -35,6 +42,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import UpdateUserDetailsDto from '@libs/userSettings/update-user-details.dto';
 import GroupJoinState from '@libs/classManagement/constants/joinState.enum';
 import GroupFormDto from '@libs/groups/types/groupForm.dto';
+import LMN_API_SEARCH_PARAMS from '@libs/lmnApi/constants/lmnApiSearchParams';
 import LmnApiService from './lmnApi.service';
 import GetCurrentOrganisationPrefix from '../common/decorators/getCurrentOrganisationPrefix.decorator';
 import GetCurrentUsername from '../common/decorators/getCurrentUsername.decorator';
@@ -47,6 +55,11 @@ const { ROOT, USERS_QUOTA } = LMN_API_EDU_API_ENDPOINTS;
 @Controller(ROOT)
 export class LmnApiController {
   constructor(private readonly lmnApiService: LmnApiService) {}
+
+  @Get('auth')
+  async getLmnApiToken(@GetCurrentUsername() username: string) {
+    return this.lmnApiService.getLmnApiToken(username);
+  }
 
   @Post('passwords')
   async printPasswords(
@@ -91,9 +104,10 @@ export class LmnApiController {
   @Get('school-classes/:schoolClassName')
   async getSchoolClass(
     @Param() params: { schoolClassName: string },
+    @Query(LMN_API_SEARCH_PARAMS.ALL_MEMBERS) allMembers: string,
     @Headers(HTTP_HEADERS.XApiKey) lmnApiToken: string,
   ) {
-    return this.lmnApiService.getSchoolClass(lmnApiToken, params.schoolClassName);
+    return this.lmnApiService.getSchoolClass(lmnApiToken, params.schoolClassName, allMembers === 'true');
   }
 
   @Get('school-classes')
@@ -285,6 +299,11 @@ export class LmnApiController {
   @Get('schools')
   async getSchools(@Headers(HTTP_HEADERS.XApiKey) lmnApiToken: string) {
     return this.lmnApiService.getSchools(lmnApiToken);
+  }
+
+  @Get('server/lmnversion')
+  async getLmnVersion(@Headers(HTTP_HEADERS.XApiKey) lmnApiToken: string) {
+    return this.lmnApiService.getLmnVersion(lmnApiToken);
   }
 }
 

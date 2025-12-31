@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -24,6 +31,7 @@ import APPS_FILES_PATH from '@libs/common/constants/appsFilesPath';
 import getIsAdmin from '@libs/user/utils/getIsAdmin';
 import APPS from '@libs/appconfig/constants/apps';
 import ExtendedOptionKeys from '@libs/appconfig/constants/extendedOptionKeys';
+import MultipleSelectorGroup from '@libs/groups/types/multipleSelectorGroup';
 import CustomHttpException from '../common/CustomHttpException';
 import { AppConfig } from './appconfig.schema';
 import initializeCollection from './initializeCollection';
@@ -34,6 +42,8 @@ import GlobalSettingsService from '../global-settings/global-settings.service';
 
 @Injectable()
 class AppConfigService implements OnModuleInit {
+  public appAccessMap = new Map<string, Set<string>>();
+
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(AppConfig.name) private readonly appConfigModel: Model<AppConfig>,
@@ -41,10 +51,34 @@ class AppConfigService implements OnModuleInit {
     private readonly globalSettingsService: GlobalSettingsService,
   ) {}
 
+  async updateAppAccessMap() {
+    try {
+      const appConfigs = await this.appConfigModel.find({}).lean();
+      this.appAccessMap = new Map(
+        appConfigs.map((config) => [
+          config.name,
+          new Set(config.accessGroups?.map((group: MultipleSelectorGroup) => group.path) ?? []),
+        ]),
+      );
+
+      this.eventEmitter.emit(EVENT_EMITTER_EVENTS.APP_ACCESS_MAP_UPDATED);
+      Logger.verbose(`App access map updated`, AppConfigService.name);
+    } catch (error) {
+      throw new CustomHttpException(
+        AppConfigErrorMessages.ReadAppConfigFailed,
+        HttpStatus.SERVICE_UNAVAILABLE,
+        undefined,
+        AppConfigService.name,
+      );
+    }
+  }
+
   async onModuleInit() {
     await initializeCollection(this.connection, this.appConfigModel);
 
     await MigrationService.runMigrations<AppConfig>(this.appConfigModel, appConfigMigrationsList);
+
+    await this.updateAppAccessMap();
   }
 
   async insertConfig(appConfigDto: AppConfigDto, ldapGroups: string[]) {
@@ -60,7 +94,10 @@ class AppConfigService implements OnModuleInit {
       );
     } finally {
       await AppConfigService.writeProxyConfigFile(appConfigDto);
-      this.eventEmitter.emit(EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED);
+
+      await this.updateAppAccessMap();
+
+      this.eventEmitter.emit(`${EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED}-${appConfigDto.name}`);
     }
   }
 
@@ -119,7 +156,10 @@ class AppConfigService implements OnModuleInit {
       );
     } finally {
       await AppConfigService.writeProxyConfigFile(appConfigDto);
-      this.eventEmitter.emit(EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED);
+
+      await this.updateAppAccessMap();
+
+      this.eventEmitter.emit(`${EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED}-${appConfigDto.name}`);
     }
   }
 
@@ -135,7 +175,7 @@ class AppConfigService implements OnModuleInit {
         AppConfigService.name,
       );
     } finally {
-      this.eventEmitter.emit(EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED);
+      this.eventEmitter.emit(`${EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED}-${name}`);
     }
   }
 
@@ -292,7 +332,9 @@ class AppConfigService implements OnModuleInit {
         await FilesystemService.deleteDirectories([`${APPS_FILES_PATH}/${configName}`]);
       }
 
-      this.eventEmitter.emit(EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED);
+      await this.updateAppAccessMap();
+
+      this.eventEmitter.emit(`${EVENT_EMITTER_EVENTS.APPCONFIG_UPDATED}-${configName}`);
     }
   }
 

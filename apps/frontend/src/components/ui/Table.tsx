@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import * as React from 'react';
@@ -58,15 +65,24 @@ const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
 );
 TableFooter.displayName = 'TableFooter';
 
-const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
-  ({ className, ...props }, ref) => (
+type TableRowVariant = 'default' | 'dialog' | 'none';
+
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+  variant?: TableRowVariant;
+}
+
+const TABLE_ROW_VARIANTS: Record<TableRowVariant, string> = {
+  default:
+    'data-[state=selected]:bg-muted-light hover:bg-muted-light dark:data-[state=selected]:bg-muted-background dark:hover:bg-muted-background',
+  dialog: 'data-[state=selected]:bg-muted-light hover:bg-muted-light',
+  none: '',
+};
+
+const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
+  ({ className, variant = 'default', ...props }, ref) => (
     <tr
       ref={ref}
-      className={cn(
-        ' truncate text-foreground transition-colors data-[state=selected]:bg-muted hover:bg-white/10',
-        'py-0',
-        className,
-      )}
+      className={cn('truncate py-0 text-foreground transition-colors', TABLE_ROW_VARIANTS[variant], className)}
       {...props}
     />
   ),
@@ -85,7 +101,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
       {...props}
     >
       {props.children}
-      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gray-200" />
+      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-muted" />
     </th>
   ),
 );

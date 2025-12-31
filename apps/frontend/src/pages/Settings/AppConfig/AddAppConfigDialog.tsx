@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useCallback, useEffect } from 'react';
@@ -16,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 import { MdOutlineCloudUpload } from 'react-icons/md';
-import { HiTrash } from 'react-icons/hi';
+import { DeleteIcon } from '@libs/common/constants/standardActionIcons';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import useAppConfigsStore from '@/pages/Settings/AppConfig/useAppConfigsStore';
@@ -25,15 +32,18 @@ import CircleLoader from '@/components/ui/Loading/CircleLoader';
 import { Form } from '@/components/ui/Form';
 import FormField from '@/components/shared/FormField';
 import type AppConfigDto from '@libs/appconfig/types/appConfigDto';
-import APP_INTEGRATION_VARIANT from '@libs/appconfig/constants/appIntegrationVariants';
 import { SETTINGS_PATH } from '@libs/appconfig/constants/appConfigPaths';
 import type AppConfigOption from '@libs/appconfig/types/appConfigOption';
 import APPS from '@libs/appconfig/constants/apps';
 import slugify from '@libs/common/utils/slugify';
 import DialogFooterButtons from '@/components/ui/DialogFooterButtons';
 import { Button } from '@/components/shared/Button';
+import AppIntegrationType from '@libs/appconfig/types/appIntegrationType';
+import cn from '@libs/common/utils/className';
+import getAppIconClassName from '@/utils/getAppIconClassName';
 import getCustomAppConfigFormSchema from './schemas/getCustomAppConfigFormSchema';
 import SelectIconField from './components/SelectIconField';
+import defaultIconList from './components/defaultIconList';
 
 interface AddAppConfigDialogProps {
   selectedApp: AppConfigOption;
@@ -59,18 +69,6 @@ const AddAppConfigDialog: React.FC<AddAppConfigDialogProps> = ({ selectedApp }) 
 
   const onSubmit = async () => {
     const newAppIcon = form.getValues('customIcon');
-    const getAppType = () => {
-      switch (selectedApp.id) {
-        case APPS.FORWARDING:
-          return APP_INTEGRATION_VARIANT.FORWARDED;
-        case APPS.FRAME:
-          return APP_INTEGRATION_VARIANT.FRAMED;
-        case APPS.EMBEDDED:
-          return APP_INTEGRATION_VARIANT.EMBEDDED;
-        default:
-          return APP_INTEGRATION_VARIANT.FORWARDED;
-      }
-    };
 
     const getOptions = () => {
       if (selectedApp.id === APPS.EMBEDDED) {
@@ -99,7 +97,7 @@ const AddAppConfigDialog: React.FC<AddAppConfigDialogProps> = ({ selectedApp }) 
         fr: newAppName,
       },
       icon: newAppIcon,
-      appType: getAppType(),
+      appType: selectedApp.id as AppIntegrationType,
       options: getOptions(),
       accessGroups: [],
       extendedOptions: getExtendedOptions(),
@@ -138,9 +136,20 @@ const AddAppConfigDialog: React.FC<AddAppConfigDialogProps> = ({ selectedApp }) 
       'image/webp': ['.webp'],
     },
   });
-  const dropzoneStyle = `border-2 border-dashed border-gray-300 rounded-lg ${
-    isDragActive ? 'bg-foreground' : 'bg-popover-foreground'
+  const dropzoneStyle = `border-2 border-dashed border-muted dark:border-muted-foreground rounded-xl ${
+    isDragActive ? 'bg-muted-background' : 'bg-foreground dark:bg-muted'
   }`;
+
+  const handleClose = () => {
+    form.reset();
+    setIsAddAppConfigDialogOpen(false);
+  };
+
+  const handleDeleteIcon = () => {
+    form.setValue('customIcon', '', { shouldValidate: true });
+  };
+
+  const isDefaultIcon = defaultIconList.includes(form.getValues('customIcon'));
 
   const getDialogBody = () => {
     if (isLoading) return <CircleLoader className="mx-auto mt-5" />;
@@ -165,7 +174,7 @@ const AddAppConfigDialog: React.FC<AddAppConfigDialogProps> = ({ selectedApp }) 
                 <p className="text-wrap text-center font-semibold text-secondary">
                   {isDragActive ? t('filesharingUpload.dropHere') : t('appstore.dropIconDescription')}
                 </p>
-                <MdOutlineCloudUpload className="h-12 w-12 text-muted" />
+                <MdOutlineCloudUpload className="h-12 w-12 text-secondary" />
               </div>
             </div>
             {form.getValues('customIcon') && (
@@ -175,40 +184,34 @@ const AddAppConfigDialog: React.FC<AddAppConfigDialogProps> = ({ selectedApp }) 
                     <img
                       src={form.getValues('customIcon')}
                       alt={t('filesharingUpload.previewAlt')}
-                      className="mb-2 aspect-square h-auto w-full object-cover"
-                      onLoad={() => {}}
+                      className={cn(
+                        'mb-2 aspect-square h-auto w-full object-cover',
+                        isDefaultIcon && getAppIconClassName(form.getValues('customIcon')),
+                      )}
                     />
                     <Button
-                      onClick={() => form.setValue('customIcon', '')}
+                      type="button"
+                      onClick={handleDeleteIcon}
                       className="absolute right-1 top-1 h-8 rounded-full bg-ciRed bg-opacity-70 p-2 hover:bg-ciRed"
                     >
-                      <HiTrash className="text-text-ciRed h-4 w-4" />
+                      <DeleteIcon className="h-4 w-4 text-white" />
                     </Button>
                   </li>
                 </ul>
               </ScrollArea>
             )}
           </div>
+          <DialogFooterButtons
+            handleClose={handleClose}
+            handleSubmit={() => {}}
+            submitButtonText="common.add"
+            submitButtonType="submit"
+            disableSubmit={isLoading}
+          />
         </form>
       </Form>
     );
   };
-
-  const handleClose = () => {
-    form.reset();
-    setIsAddAppConfigDialogOpen(false);
-  };
-
-  const getFooter = () => (
-    <form>
-      <DialogFooterButtons
-        handleClose={handleClose}
-        handleSubmit={form.handleSubmit(onSubmit)}
-        submitButtonText="common.add"
-        disableSubmit={isLoading}
-      />
-    </form>
-  );
 
   return (
     <AdaptiveDialog
@@ -216,7 +219,6 @@ const AddAppConfigDialog: React.FC<AddAppConfigDialogProps> = ({ selectedApp }) 
       handleOpenChange={handleClose}
       title={t('settings.addApp.title')}
       body={getDialogBody()}
-      footer={getFooter()}
     />
   );
 };

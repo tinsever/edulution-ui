@@ -1,18 +1,25 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import { join } from 'path';
 import { Model, Types } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
 import SurveyStatus from '@libs/survey/survey-status-enum';
@@ -23,6 +30,7 @@ import { createNewPublicUserLogin, publicUserLoginRegex } from '@libs/survey/uti
 import SURVEY_ANSWERS_ATTACHMENT_PATH from '@libs/survey/constants/surveyAnswersAttachmentPath';
 import SurveyAnswerErrorMessages from '@libs/survey/constants/survey-answer-error-messages';
 import UserErrorMessages from '@libs/user/constants/user-error-messages';
+import TSurveyAnswer from '@libs/survey/types/TSurveyAnswer';
 import CustomHttpException from '../common/CustomHttpException';
 import { Survey, SurveyDocument } from './survey.schema';
 import { SurveyAnswer, SurveyAnswerDocument } from './survey-answers.schema';
@@ -261,7 +269,7 @@ class SurveyAnswersService implements OnModuleInit {
     }
   };
 
-  async addAnswer(surveyId: string, answer: JSON, attendee: Partial<Attendee>): Promise<SurveyAnswer | null> {
+  async addAnswer(surveyId: string, answer: TSurveyAnswer, attendee: Partial<Attendee>): Promise<SurveyAnswer | null> {
     const survey = await this.surveyModel.findById<SurveyDocument>(surveyId).exec();
     if (!survey) {
       throw new CustomHttpException(
@@ -291,7 +299,7 @@ class SurveyAnswersService implements OnModuleInit {
   selectStrategy = (
     survey: SurveyDocument,
     attendee: Partial<Attendee>,
-    answer: JSON,
+    answer: TSurveyAnswer,
     existingUsersAnswerId?: string,
   ): Promise<SurveyAnswer | null> => {
     if (survey.isAnonymous) return this.anonymousStrategy(survey, answer);
@@ -308,13 +316,14 @@ class SurveyAnswersService implements OnModuleInit {
     );
   };
 
-  async anonymousStrategy(survey: SurveyDocument, answer: JSON): Promise<SurveyAnswerDocument | null> {
-    const username = `anonymous_${uuidv4()}`;
+  async anonymousStrategy(survey: SurveyDocument, answer: TSurveyAnswer): Promise<SurveyAnswerDocument | null> {
+    const username = `anonymous_${randomUUID()}`;
     const user: Attendee = { username };
-    const updatedAnswer = await this.surveyAnswerAttachmentsService.moveAnswersAttachmentsToPermanentStorage(
+    const updatedAnswer = await this.surveyAnswerAttachmentsService.processSurveyAnswer(
       username,
       String(survey.id),
       answer,
+      true,
     );
     const createdAnswer: SurveyAnswerDocument | null = await this.createAnswer(
       user,
@@ -333,7 +342,7 @@ class SurveyAnswersService implements OnModuleInit {
 
   async publicFirstStrategy(
     survey: SurveyDocument,
-    answer: JSON,
+    answer: TSurveyAnswer,
     attendee: Partial<Attendee>,
   ): Promise<SurveyAnswerDocument | null> {
     const { firstName } = attendee;
@@ -346,11 +355,11 @@ class SurveyAnswersService implements OnModuleInit {
       );
     }
 
-    const newPublicUserId = uuidv4();
+    const newPublicUserId = randomUUID();
     const newPublicUserLogin = createNewPublicUserLogin(firstName, newPublicUserId);
     const user: Attendee = { ...attendee, username: newPublicUserLogin, lastName: newPublicUserId };
 
-    const updatedAnswer = await this.surveyAnswerAttachmentsService.moveAnswersAttachmentsToPermanentStorage(
+    const updatedAnswer = await this.surveyAnswerAttachmentsService.processSurveyAnswer(
       firstName,
       String(survey.id),
       answer,
@@ -372,7 +381,7 @@ class SurveyAnswersService implements OnModuleInit {
 
   async loggedOrPublicStrategy(
     survey: SurveyDocument,
-    answer: JSON,
+    answer: TSurveyAnswer,
     attendee: Partial<Attendee>,
   ): Promise<SurveyAnswerDocument | null> {
     if (!attendee.username) {
@@ -386,10 +395,11 @@ class SurveyAnswersService implements OnModuleInit {
 
     await this.throwErrorIfParticipationIsNotPossible(survey, attendee.username);
 
-    const updatedAnswer = await this.surveyAnswerAttachmentsService.moveAnswersAttachmentsToPermanentStorage(
+    const updatedAnswer = await this.surveyAnswerAttachmentsService.processSurveyAnswer(
       attendee.username,
       String(survey.id),
       answer,
+      survey.canSubmitMultipleAnswers,
     );
     const createdAnswer: SurveyAnswerDocument | null = await this.createAnswer(
       attendee as Attendee,
@@ -408,7 +418,7 @@ class SurveyAnswersService implements OnModuleInit {
 
   async updatingStrategy(
     survey: SurveyDocument,
-    answer: JSON,
+    answer: TSurveyAnswer,
     attendee: Partial<Attendee>,
     existingUsersAnswerId: string,
   ): Promise<SurveyAnswerDocument | null> {
@@ -423,7 +433,7 @@ class SurveyAnswersService implements OnModuleInit {
 
     await this.throwErrorIfParticipationIsNotPossible(survey, attendee.username);
 
-    const updatedAnswer = await this.surveyAnswerAttachmentsService.moveAnswersAttachmentsToPermanentStorage(
+    const updatedAnswer = await this.surveyAnswerAttachmentsService.processSurveyAnswer(
       attendee.username,
       String(survey.id),
       answer,
@@ -479,7 +489,7 @@ class SurveyAnswersService implements OnModuleInit {
     return latestUserAnswer || undefined;
   }
 
-  async getPublicAnswers(surveyId: string): Promise<JSON[] | null> {
+  async getPublicAnswers(surveyId: string): Promise<Record<string, unknown>[] | null> {
     const surveyAnswers = await this.surveyAnswerModel.find<SurveyAnswer>({ surveyId: new Types.ObjectId(surveyId) });
     if (surveyAnswers.length === 0) {
       throw new CustomHttpException(
@@ -533,7 +543,7 @@ class SurveyAnswersService implements OnModuleInit {
     attendee: Attendee,
     surveyId: string,
     saveNo: number,
-    answer: JSON,
+    answer: TSurveyAnswer,
   ): Promise<SurveyAnswerDocument> {
     const newSurveyAnswer: SurveyAnswerDocument | null = await this.surveyAnswerModel.create({
       attendee,

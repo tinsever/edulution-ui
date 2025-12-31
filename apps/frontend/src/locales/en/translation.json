@@ -21,7 +21,9 @@
     "isVisibleEndDate": "Active until",
     "isActiveOrExpired": "Active/Expired",
     "activeFrom": "Active from",
+    "activeFromPlaceholder": "immediately",
     "activeUntil": "Active until",
+    "activeUntilPlaceholder": "unlimited",
     "appTitle": "Info Board",
     "description": "Here you can find your latest bulletins",
     "sidebar": "Info Board",
@@ -55,8 +57,8 @@
     "deleteBulletins": "Delete {{count}} bulletins",
     "editBulletin": "Edit bulletin",
     "createBulletin": "Create bulletin",
-    "confirmSingleDelete": "Do you really want to delete this bulletin?",
-    "confirmMultiDelete": "Do you really want to delete these bulletins?",
+    "confirmDelete": "Do you really want to delete this bulletin?",
+    "confirmDelete_other": "Do you really want to delete these {{count}} bulletins?",
     "rowsSelected": "{{selected}} out of {{total}} bulletins selected",
     "rowSelected": "{{selected}} out of {{total}} bulletin selected",
     "cancel": "Cancel",
@@ -87,6 +89,7 @@
       "unauthorizedCreateCategory": "No permission to create this category",
       "unauthorizedDeleteCategory": "No permission to delete this category",
       "unauthorizedUpdateCategory": "No permission to update this category",
+      "attachmentNotFound": "Attachment not found",
       "attachmentDeletionFailed": "Failed to delete an attachment"
     }
   },
@@ -107,7 +110,9 @@
     "dropIconDescription": "Drag an image here or click to select an image. Supported formats: SVG, WEBP"
   },
   "forwarding": {
-    "sidebar": "Forwarding"
+    "sidebar": "Forwarding",
+    "behaviorAtSidebarClick": "Quick access when opening the app",
+    "forwardDirectly": "Forward directly when opening the app (if disabled, the user must confirm with another click)"
   },
   "frame": {
     "sidebar": "Frame"
@@ -122,15 +127,9 @@
     "mobileAccess": {
       "title": "Mobile Access",
       "manual": "Setup",
-      "manualSetup": "Manual setup",
       "setupWithQrCode": "Setup with QR code",
-      "accessData": "Login data",
       "content": "You can access the school server from many mobile devices. Click on Manual to start.",
-      "scanAccessInfo": "To transfer the access data, please scan the following QR code with the {{ applicationName }} app.",
-      "manualAccessInfo": "Enter your login details manually in the {{ applicationName }} app. The example below shows how to fill in each field.",
-      "nextStepPreview": "In the next step you can transfer the access data.",
-      "downloadDirect": "Or download the app directly:",
-      "downloadApp": "Download the {{ applicationName }} app here:"
+      "scanAccessInfo": "To transfer the access data, please scan the following QR code with the edulution App."
     },
     "quota": {
       "title": "Quotas",
@@ -187,7 +186,8 @@
       "PasswordMismatch": "The current password is wrong",
       "PasswordChangeFailed": "Password change failed",
       "GetUsersQuotaFailed": "Failed to get users quota",
-      "GetSchoolsFailed": "Failed to get schools"
+      "GetSchoolsFailed": "Failed to get schools",
+      "GetLmnVersionFailed": "Failed to retrieve the Linuxmuster version."
     }
   },
   "ticketsystem": {
@@ -218,7 +218,13 @@
       "mailAddress": "E-Mail address",
       "noMailConfigured": "E-Mail app is not active. Please contact your system administrator.",
       "syncAccountAdded": "Account for sync job added.",
-      "syncAccountDeleted": "Account for sync job deleted."
+      "syncAccountDeleted": "Account for sync job deleted.",
+      "confirmDeleteSyncJob_other": "Are you sure you want to delete these {{count}} sync jobs? This action cannot be undone.",
+      "confirmDeleteSyncJob": "Are you sure you want to delete this sync job? This action cannot be undone.",
+      "deleteSyncJobs": "Delete {{count}} Sync Jobs",
+      "deleteSyncJob": "Delete Sync Job",
+      "confirmDeleteProviderConfig": "Are you sure you want to delete this mail provider configuration? This action cannot be undone.",
+      "deleteProviderConfig": "Delete Mail Provider Configuration"
     }
   },
   "chat": {
@@ -230,7 +236,8 @@
     "unexpectedError": "An unexpected error occurred",
     "uploadOrFetchAttachmentFailed": "Error uploading or fetching attachment",
     "fileGenerationFailed": "File generation failed",
-    "requestTooLarge": "Your request is too large. If you have attached media, try compressing or removing it"
+    "requestTooLarge": "Your request is larger than {{limit}} KB. If you have attached media files, try compressing or removing them.",
+    "fileTooLarge": "The file is larger than {{limit}} MB. Please compress or choose a smaller file."
   },
   "conferences": {
     "errors": {
@@ -278,12 +285,13 @@
     "create": "Create conference",
     "delete": "Delete",
     "deleteConference": "Delete conference",
-    "deleteConferences": "Delete {count} conferences",
+    "deleteConferences_other": "Delete {{count}} conferences",
+    "deleteConferences": "Delete conference",
     "editConference": "Edit conference",
     "conferenceUpdatedSuccessfully": "Conference updated successfully",
     "conferenceCreatedSuccessfully": "Conference created successfully",
-    "confirmSingleDelete": "Should this conference really be deleted?",
-    "confirmMultiDelete": "Should these conferences really be deleted?",
+    "confirmDelete": "Should this conference really be deleted?",
+    "confirmDelete_other": "Should these {{count}} conferences really be deleted?",
     "name": "Name of conference",
     "conference": "Conference",
     "password": "Password",
@@ -334,6 +342,12 @@
     "rowSelected": "{{selected}} of {{total}} file selected",
     "fileWithSameNameAlreadyExists": "A file with the same name already exists.",
     "folderWithSameNameAlreadyExists": "A folder with the same name already exists.",
+    "currentName": "Current name",
+    "sameNameAsOriginal": "Please enter a different name",
+    "placeholder": {
+      "filename": "Name",
+      "extension": ".ext"
+    },
     "errors": {
       "FileNotFound": "File not found",
       "MountPointsNotFound": "Mount points not found",
@@ -389,6 +403,14 @@
       "zipFilesAreUploading": "Files are uploading",
       "fileIsUploading": "{{filename}} is uploading"
     },
+    "textEditor": {
+      "unsavedChanges": "Unsaved Changes",
+      "unsavedChangesMessage": "You have unsaved changes. What would you like to do?",
+      "discard": "Discard",
+      "saving": "Saving...",
+      "saveSuccess": "File saved successfully",
+      "saveError": "Failed to save file"
+    },
 
     "publicShareFilesPage": {
       "title": "Shared Files",
@@ -408,10 +430,10 @@
       "invitedAttendees": "Invited",
       "isAccessibleBy": "Accessible by",
       "publiclyAccessible": "Publicly accessible",
-      "confirmMultiDelete": "Should these share links for the following contents really be deleted?",
-      "confirmSingleDelete": "Should this share link for the following content really be deleted?",
-      "deleteFileLink": "Delete share links",
-      "deleteFileLinks": "Delete share links",
+      "confirmDelete": "Should this share link really be deleted?",
+      "confirmDelete_other": "Should these {{count}} share links really be deleted?",
+      "deleteFileLink": "Delete share link",
+      "deleteFileLink_other": "Delete share links",
       "isPasswordProtected": "Password",
       "qrCodePublicShareFile": "QR Code for public share link",
       "createNewFileLink": "Create new share link",
@@ -505,6 +527,18 @@
     "detailsprinters": "Details of printer",
     "classes": "Classes",
     "name": "Name",
+    "confirmDeleteGroup": "Are you sure you want to delete this group? This action cannot be undone.",
+    "deleteGroup": "Delete {{type}}",
+    "project": {
+      "createSuccess": "Project created successfully",
+      "updateSuccess": "Project updated successfully",
+      "deleteSuccess": "Project deleted successfully"
+    },
+    "sessions": {
+      "createSuccess": "Session created successfully",
+      "updateSuccess": "Session updated successfully",
+      "deleteSuccess": "Session deleted successfully"
+    },
     "notMemberOfClass": "You are no member of a class.",
     "noGroupsToShow": "No groups available.",
     "overview": "Overview",
@@ -586,6 +620,7 @@
     "pdfDescription": "Create a PDF file to print the passwords for these school classes",
     "csvDescription": "Create a CSV file to print the passwords for these school classes",
     "printOneItemPerPage": "Print one password per page",
+    "shouldSplitNamesInCsv": "First and last name in separate columns (works from Linuxmuster 7.3 onwards)",
     "selectSavedSession": "Select from saved sessions",
     "saveSession": "Save session",
     "editSession": "Edit session",
@@ -611,7 +646,9 @@
       "proxyAdressDescription": "URL of the Veyon-WebAPI-Proxy",
       "proxyAdressPlaceholder": "http://localhost:11080",
       "createConfig": "Create config",
-      "editConfig": "Edit config"
+      "editConfig": "Edit config",
+      "deleteConfig": "Delete config",
+      "confirmDeleteConfig": "Are you sure you want to delete this Veyon proxy config?"
     },
     "selectSchool": {
       "title": "Select school",
@@ -650,6 +687,14 @@
     "notFound": "Survey could not be found.",
     "noFormula": "The formula of the survey is not readable.",
     "canSubmitMultiple": "Allow multiple submissions",
+    "export": {
+      "exportToPDF": "Export as PDF",
+      "saveInPDF": "Save as PDF",
+      "processing": "Processing export ...",
+      "success": "Successfully exported as PDF",
+      "error": "Error exporting",
+      "warning": "Some questions can not be displayed correctly in the PDF export. This includes file upload, image selection and the password field."
+    },
     "editor": {
       "inputFieldTitle": "Input field",
       "new": "New (blank)",
@@ -657,6 +702,11 @@
       "fileUploadError": "Error on file upload, please retry later.",
       "fileDeletionSuccess": "Deleted the file successfully.",
       "saveSurveySuccess": "Saved the survey.",
+      "surveyPlaceHolder": "Click the \"Add Question\" button below to start creating your form.",
+      "surveyPlaceholderDescription": "Click the \"Add Question\" button below to start creating your form.",
+      "surveyPlaceholderDescriptionMobile": "Click the \"Add Question\" button below to start creating your form.",
+      "pagePlaceHolder": "Click the \"Add Question\" button below to add a new element to the page.",
+      "panelPlaceHolder": "Click on the \"Add Question\" below to add a new element to the panel.",
       "reset": "Reset",
       "addDescription": "Add a description",
       "expectingUserInput": "Expecting the user to answer here, ... ",
@@ -667,6 +717,10 @@
         "userMessage": "Here you can load a template that is available to you.",
         "adminMessage": "Here you can either load a template or update/create the template of the current survey, for later usage.",
         "emptyMessage": "There are no templates available yet",
+        "upload": {
+          "success": "Template saved successfully",
+          "error": "Failed to save template"
+        },
         "deletion": {
           "title": "Delete template",
           "message": "Are you sure you want to delete this template?",
@@ -681,6 +735,15 @@
         "addQuestionTitle": "Add a title",
         "questionDescription": "Description",
         "addQuestionDescription": "Add a description",
+        "rowsAndColumns": "Edit rows and columns",
+        "columns": "Columns",
+        "addColumn": "Add column",
+        "newColumn": "New column",
+        "removeColumn": "Remove column",
+        "rows": "Rows",
+        "addRow": "Add row",
+        "newRow": "New row",
+        "removeRow": "Remove row",
         "limit": "Limit",
         "nullLimit": "An upper limit of 0 means, that the option selectable, infinitely often",
         "backendLimiters": "Option limits",
@@ -737,9 +800,10 @@
   "surveys": {
     "rowsSelected": "{{selected}} of {{total}} surveys selected",
     "rowSelected": "{{selected}} of {{total}} survey selected",
-    "confirmMultiDelete": "Should these surveys really be deleted?",
-    "confirmSingleDelete": "Should this survey really be deleted?",
-    "deleteSurveys": "Delete {{count}} surveys",
+    "confirmDelete": "Should this survey really be deleted?",
+    "confirmDelete_other": "Should these {{count}} surveys really be deleted?",
+    "deleteSurveys": "Delete survey",
+    "deleteSurveys_other": "Delete {{count}} surveys",
     "deletedSurveys": "Deleted {{count}} surveys",
     "deleteSurvey": "Delete survey",
     "deletedSurvey": "Survey deleted",
@@ -893,6 +957,7 @@
     },
     "delete": "Remove",
     "description": {
+      "dashboard": "Here you can make all the settings.",
       "ticketsystem": "Here you can make all the settings.",
       "mail": "Here you can make all the settings.",
       "chat": "Here you can make all the settings.",
@@ -919,8 +984,8 @@
       "linuxmuster": "Here you can make all the settings.",
       "whiteboard": "Here you can make all the settings.",
       "bulletinboard": "Configure the user groups that have access to the Info Board app here. The categories can be used to control which messages are displayed to users.",
-      "forwarded": "Forwarding: Simply enter the link to the web application under URL.",
-      "framed": "Frame: Simply enter the link to the web application under URL.",
+      "forwarding": "Forwarding: Simply enter the link to the web application under URL.",
+      "frame": "Frame: Simply enter the link to the web application under URL.",
       "embedded": "Embedded: Here you can create your own web application in the editor."
     },
     "globalSettings": {
@@ -958,6 +1023,18 @@
         "uploadDarkLogo": "Upload dark logo",
         "deleteSuccessful": "Logo deleted successfully."
       },
+      "theme": {
+        "title": "Theme Customization",
+        "primaryColor": "Primary Color",
+        "primaryDescription": "Main color used for buttons, links, and highlights",
+        "secondaryColor": "Secondary Color",
+        "secondaryDescription": "Secondary color used for text and borders",
+        "ciLightGreen": "Brand Green",
+        "ciLightGreenDescription": "Brand green color used in gradients and logos",
+        "ciLightBlue": "Brand Blue",
+        "ciLightBlueDescription": "Brand blue color used in gradients and logos",
+        "resetToDefaults": "Reset to Defaults"
+      },
       "organisationInfo": {
         "title": "Organisational information",
         "descriptionSchool": "Enter your organization’s official details. This information may be displayed in the edulution app. Please provide the name, street, postal code, and optionally the school website.",
@@ -982,16 +1059,22 @@
       "totpResetSuccess": "TOTP for user {{username}} has been disabled successfully.",
       "setAdminGroupTitle": "Set administrator group",
       "setAdminGroupDescription": "Additional administrators can be defined here. The global administrator remains unchanged.",
-      "setAdminGroupSelectDescription": "Groups can be selected using the search field."
+      "setAdminGroupSelectDescription": "Groups can be selected using the search field.",
+      "setAdminGroupWarning": "At least one admin group must be selected."
     },
     "info": {
       "title": "Info"
     },
+    "lmnVersion": { "title": "Linuxmuster version overview" },
     "appconfig": {
       "position": {
         "title": "Sorting",
         "description": "At which position should the app be displayed in the app bar and in the settings?"
       },
+      "deleteEntries": "Delete entry",
+      "deleteEntries_other": "Delete {{count}} entries",
+      "confirmDeleteEntries": "Are you sure you want to delete this entry? This action cannot be undone.",
+      "confirmDeleteEntries_other": "Are you sure you want to delete these {{count}} entries? This action cannot be undone.",
       "sections": {
         "onlyOffice": {
           "title": "Only Office Integration",
@@ -1013,9 +1096,22 @@
           "title": "General settings",
           "description": ""
         },
+        "drawio": {
+          "title": "Draw.io Integration",
+          "description": "Configure Draw.io for creating diagrams and flowcharts."
+        },
+        "proxyConfig": {
+          "title": "Proxy Configuration",
+          "description": "You can store your own proxy configuration for Traefik here. You can either work via the input fields using a template or create a configuration in YAML format directly in expert mode. <br/><strong>Warning:</strong> A wrong configuration could lead to the application being unreachable."
+        },
+
         "docker": {
           "title": "Docker Applications",
-          "description": "To be able to use the extended services, the required container applications must be started here."
+          "description": "To be able to use the extended services, the required container applications must be started here.",
+          "confirmMultiDeleteContainer": "Are you sure you want to delete these containers? This action cannot be undone.",
+          "confirmSingleDeleteContainer": "Are you sure you want to delete this container? This action cannot be undone.",
+          "deleteContainers_other": "Delete {{count}} Containers",
+          "deleteContainers": "Delete Container"
         },
         "veyon": {
           "title": "Veyon Proxy",
@@ -1028,11 +1124,19 @@
           "title": "WebDAV",
           "sectionTitle": "WebDAV-Shares",
           "description": "WebDAV servers can be set up for the file manager here.",
-          "filterPlaceHolderText": "Search for WebDAV shares"
+          "filterPlaceHolderText": "Search for WebDAV shares",
+          "deleteWebdavShare": "Delete WebDAV share",
+          "confirmDeleteWebdavShare": "Are you sure you want to delete this WebDAV share?"
         },
         "webdavServer": {
           "title": "WebDAV-Server",
-          "filterPlaceHolderText": "Search for WebDAV servers"
+          "filterPlaceHolderText": "Search for WebDAV servers",
+          "deleteWebdavServer": "Delete WebDAV server",
+          "confirmDeleteWebdavServer": "Are you sure you want to delete this WebDAV server?",
+          "deleteWarning": {
+            "title": "Deletion not possible",
+            "description": "The WebDAV server '{{serverName}}' is used by {{count}} share(s): {{shares}}. Please delete the dependent shares first."
+          }
         },
         "files": {
           "title": "Files",
@@ -1153,14 +1257,25 @@
       "enterSavePin": "Please enter your safe PIN.",
       "wrongSafePin": "Wrong PIN Number",
       "enterSafePin": "Please enter your PIN number for decryption",
-      "safePinDescription": "A PIN is required to encrypt the access data. This PIN isn't visible for anyone else and is not saved."
+      "safePinDescription": "A PIN is required to encrypt the access data. This PIN isn't visible for anyone else and is not saved.",
+      "confirmMultiDeleteAccount": "Are you sure you want to delete these accounts? This action cannot be undone.",
+      "confirmSingleDeleteAccount": "Are you sure you want to delete this account? This action cannot be undone.",
+      "deleteUserAccounts": "Delete {{count}} Accounts",
+      "deleteUserAccount": "Delete Account",
+      "cryptoNotAvailable": "Encryption is only available over HTTPS. Please use a secure connection.",
+      "password": "Change Password",
+      "mfa": "Two-Factor Authentication"
     },
     "mails": {
       "title": "E-Mail"
     },
     "mobileAccess": {
       "title": "Mobile Access",
-      "description": "Here you can set up the {{ applicationName }} app for mobile access to your files. Currently only available for Apple iOS."
+      "description": "Here you can set up the edulution app for mobile access.",
+      "docsDescription": "You can find the download link for the edulution app and instructions on how to set it up in the edulution documentation.",
+      "button": "Open Docs",
+      "setup": "Setup with QR Code",
+      "qrCode": "QR Code"
     },
     "faq": "FAQ",
     "externalIntegration": "External Integration",
@@ -1178,7 +1293,19 @@
       "german": "German",
       "english": "English",
       "french": "French",
-      "system": "System language"
+      "system": "System language",
+      "selectLanguage": "Select Language"
+    },
+    "themeMode": {
+      "title": "Appearance",
+      "description": "Select the appearance of the user interface.",
+      "system": "System",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "userinterface": {
+      "title": "User Interface",
+      "description": "Here you can customize the user interface settings according to your preferences."
     },
     "addTotp": {
       "title": "Set up Two-Factor Authentication",
@@ -1198,9 +1325,12 @@
       "notAbleToCompressImage": "Not able to compress the image"
     }
   },
+  "generalsettings": {
+    "title": "General"
+  },
   "forwardingpage": {
     "action": "This link will take you to the external site of the provider.",
-    "description": "The application opens in a new window. No further authorization is required.",
+    "description": "The application opens in a new window.",
     "missing_link": "Missing link"
   },
   "menu": "Menu",
@@ -1231,6 +1361,8 @@
   },
   "edit": "Edit",
   "common": {
+    "more": "More",
+    "less": "Less",
     "refreshPage": "Refresh page",
     "showMore": "Show more",
     "visibility": "Visibility",
@@ -1247,6 +1379,7 @@
     "share": "Share",
     "answers": "Answers",
     "error": "Error",
+    "entry": "Entry {{index}}",
     "errors": {
       "dbAccessFailed": "Database access failed",
       "directoryNotCreated": "Failed to create directory",
@@ -1339,6 +1472,8 @@
     "start": "Start",
     "close": "Close",
     "delete": "Delete",
+    "deleting": "Deleting...",
+    "noItemsSelected": "No items selected",
     "connect": "Connect",
     "custom": "Custom",
     "select": "Select...",
@@ -1383,15 +1518,13 @@
     "pathDescription": "Please enter a valid URL.",
     "apptype": "App type",
     "native": "Native Support",
-    "forwarded": "Forwarded",
+    "forwarding": "Forwarded",
     "embedded": "Embedded",
     "saved": "Configuration saved!",
     "url": "URL",
     "urlDescription": "Please insert an URL to the application",
     "apiKey": "API Key",
     "apiKeyDescription": "The API Key will be used for authentication",
-    "proxyConfig": "Proxy Configuration",
-    "proxyConfigDescription": "You can store your own proxy configuration for Traefik here. You can either work via the input fields using a template or create a configuration in YAML format directly in expert mode. <br/><strong>Warning:</strong> A wrong configuration could lead to the application being unreachable.",
     "expertMode": "Expert mode",
     "proxyPath": "Proxy path",
     "proxyPathPlaceholder": "e.g. SOGo",
@@ -1423,7 +1556,9 @@
     "lastModified": "Last Modified",
     "type": "Type",
     "isShared": "Shared",
-    "filesOrFoldersSelected": "{{selected}} of {{total}} file(s)/folder(s) were selected"
+    "filesOrFoldersSelected": "{{selected}} of {{total}} file(s)/folder(s) were selected",
+    "element": "Element",
+    "elements": "Elements"
   },
   "filesharingUpload": {
     "title": "Upload Files",
@@ -1435,18 +1570,33 @@
     "dragDropClick": "Drag files here or click to select files",
     "dropHere": "Drop here",
     "filesToUpload": "Files to upload",
-    "overwriteWarningTitleFile": "Warning: File already exists",
-    "overwriteWarningTitleFiles": "Warning: Files already exist",
-    "overwriteWarningDescriptionFile": "The following file will be overwritten:",
-    "overwriteWarningDescriptionFiles": "The following files will be overwritten:",
-    "oversizedFilesDetected": "Oversized files detected",
-    "oversizedFileDetected": "Oversized file detected!",
+    "overwriteWarningTitle_one": "Warning: File already exists",
+    "overwriteWarningTitle_other": "Warning: Files already exist",
+    "overwriteWarningDescription_one": "The following file will be overwritten:",
+    "overwriteWarningDescription_other": "The following files will be overwritten:",
+    "overwriteFolderWarningTitle_one": "Warning: Folder already exists",
+    "overwriteFolderWarningTitle_other": "Warning: Folders already exist",
+    "overwriteFolderWarningDescription_one": "The following folder will be overwritten:",
+    "overwriteFolderWarningDescription_other": "The following folders will be overwritten:",
+    "oversizedFileDetected_one": "Oversized file detected:",
+    "oversizedFileDetected_other": "Oversized files detected:",
     "folderTooLargeTitle": "Too many files in the folder",
     "folderTooLargeDescription": "The folder contains more then 100 files. Please select another folder or reduce the number of files.",
     "cannotUploadOversized": "Files larger than 50 MB cannot be uploaded.",
     "addFiles": "Add files",
     "addFolder": "Add folder",
-    "preparingFolder": "Preparing folder"
+    "preparingFolder": "Preparing folder",
+    "file": "File",
+    "files": "Files",
+    "creatingDirectoryStructure": "Creating directory structure",
+    "hiddenFiles": "hidden & system files",
+    "replaceFiles": "Replace",
+    "uploadNewOnly": "Upload new files only",
+    "errors": {
+      "directoryCreationFailed": "Failed to create directory",
+      "fileUploadFailed": "Failed to upload file",
+      "uploadError": "Error uploading files"
+    }
   },
   "warnings": {
     "colorMayConflictWithTheme": "Manual setting of the color can lead to problems with other themes (light/dark) in the future. It is recommended to always set the color of the font at the same time as the background color."
@@ -1499,7 +1649,8 @@
     "presentation": "Presentation",
     "spreadsheet": "Table",
     "vector": "Diagram",
-    "compressed": "Archive"
+    "compressed": "Archive",
+    "code": "Code"
   },
   "fileCreateNewContent": {
     "documentFile": "Create a new document",
@@ -1520,8 +1671,29 @@
       "textFile": "New Textfile",
       "spreadsheetFile": "New Table",
       "presentationFile": "New Presentation",
-      "documentFile": "New Document"
-    }
+      "documentFile": "New Document",
+      "json": "JSON File (.json)",
+      "yaml": "YAML File (.yaml)",
+      "yml": "YAML File (.yml)",
+      "toml": "TOML File (.toml)",
+      "xml": "XML File (.xml)",
+      "cfg": "Config File (.cfg)",
+      "ini": "INI File (.ini)",
+      "env": "Environment File (.env)",
+      "md": "Markdown File (.md)",
+      "html": "HTML File (.html)",
+      "css": "CSS File (.css)",
+      "csv": "CSV File (.csv)",
+      "sh": "Shell Script (.sh)",
+      "bat": "Batch File (.bat)",
+      "ps1": "PowerShell Script (.ps1)",
+      "py": "Python Script (.py)",
+      "js": "JavaScript File (.js)",
+      "customFile": "Other file"
+    },
+    "customFile": "Create a new file",
+    "moreFileTypes": "More file types",
+    "lessFileTypes": "Less file types"
   },
   "fileRenameContent": {
     "placeholder": "Enter new name",
@@ -1658,6 +1830,8 @@
     "onlyOfficeUrlTitle": "OnlyOffice URL",
     "onlyOfficeJwtSecretTitle": "OnlyOffice JWT Secret",
     "onlyOfficeJwtSecretDescription": "Enter the OnlyOffice JWT Secret",
+    "drawioUrlTitle": "Draw.io URL",
+    "drawioUrlDescription": "Enter the URL of your self-hosted Draw.io instance",
     "overrideDocumentVendorMSWithOOTitle": "Use OpenDocument as the standard document format",
     "overrideDocumentVendorMSWithOODescription": "Should the format used by OpenOffice (odt, ods, odp) be used instead of Microsoft Office (docx, pptx, xlsx) formats?",
     "mailImapUrlTitle": "URL",
@@ -1674,7 +1848,19 @@
       "light": "Light",
       "dark": "Dark"
     },
-    "mailSogoThemeDisabled": "Disabled because the mail server is not running."
+    "mailSogoThemeDisabled": "Disabled because the mail server is not running.",
+    "mailSogoThemeUpdateCheckerTitle": "Theme Version Check",
+    "mailSogoThemeUpdateCheckerDescription": "Check if a new version of the current theme is available and update it if necessary.",
+    "updateChecker": {
+      "currentVersion": "Current Version",
+      "latestVersion": "Latest Version",
+      "theme": "Theme",
+      "updateAvailable": "A new version is available!",
+      "checkAgain": "Check Again",
+      "updateNow": "Update Now",
+      "checkVersionSuccess": "Theme successfully checked!",
+      "noData": "No version information available."
+    }
   },
   "mails": {
     "errors": {
@@ -1701,10 +1887,18 @@
   },
   "containerApplication": {
     "dialogTitle": "{{applicationName}}-Plugins Installer",
+    "EDU_MANAGER_INSTALL_TOKEN": {
+      "title": "Install Token",
+      "description": "Please enter the install token that was created in the Edulution Manager."
+    },
     "EDULUTION_MAIL_HOSTNAME": {
       "title": "Hostname",
       "description": "Hostname of the mail server. This could be different from the edulution domain name."
     }
+  },
+  "edulution-manager": {
+    "title": "Edulution Manager",
+    "sidebar": "Edulution Manager"
   },
   "dockerOverview": {
     "title": "Container Overview",
@@ -1716,7 +1910,9 @@
     "filterPlaceHolderText": "Search for container name",
     "port": "Port",
     "created": "Created at",
-    "container-view": "Container"
+    "container-view": "Container",
+    "selectPluginForInstallationTitle": "Select plugin for installation",
+    "selectPluginForInstallationDescription": "Select an app here for which a plugin should be installed."
   },
   "docker": {
     "error": {
@@ -1724,7 +1920,8 @@
       "dockerImageNotFound": "Docker Image could not be found",
       "dockerCreationError": "Docker Container could not be created",
       "dockerCommandExecutionError": "Docker command could not be executed",
-      "dockerContainerDeletionError": "Docker Container could not be deleted"
+      "dockerContainerDeletionError": "Docker Container could not be deleted",
+      "dockerUpdateError": "Docker Container could not be updated"
     },
     "events": {
       "pullingImage": "Pulling docker image...",
@@ -1736,7 +1933,9 @@
       "restartContainer": "Restart Container.",
       "killContainer": "Container killed.",
       "containerCreationSuccessful": "Container successfully created.",
-      "containerCreationFailed": "Container could not be created."
+      "containerCreationFailed": "Container could not be created.",
+      "containerUpdateSuccessful": "{{containerName}} updated successfully.",
+      "containerAlreadyUpToDate": "{{containerName}} is already up to date."
     },
     "status": {
       "running": "running",

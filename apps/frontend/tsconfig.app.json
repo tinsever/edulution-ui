@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "Bundler",
     "composite": true,
     "declaration": true,
     "jsx": "preserve",
@@ -9,7 +8,7 @@
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "../../libs/src/**/*", "../../libs/**/*"],
   "exclude": [
-    "vite.config.ts",
+    "vite.config.mts",
     "vitest.config.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",

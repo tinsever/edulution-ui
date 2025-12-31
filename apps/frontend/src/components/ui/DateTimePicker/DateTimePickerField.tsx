@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 'use client';
@@ -16,9 +23,9 @@ import React, { useCallback, useState } from 'react';
 import { de, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { FieldValues, Path, PathValue, UseFormReturn } from 'react-hook-form';
-import { HiTrash } from 'react-icons/hi2';
+import { DeleteIcon } from '@libs/common/constants/standardActionIcons';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { INPUT_DEFAULT, INPUT_VARIANT_DEFAULT, INPUT_VARIANT_DIALOG } from '@libs/ui/constants/commonClassNames';
+import { inputVariants } from '@libs/ui/constants/commonClassNames';
 import DropdownVariant from '@libs/ui/types/DropdownVariant';
 import cn from '@libs/common/utils/className';
 import safeGetHours from '@libs/common/utils/Date/safeGetHours';
@@ -27,9 +34,9 @@ import safeGetDate from '@libs/common/utils/Date/safeGetDate';
 import useLanguage from '@/hooks/useLanguage';
 import { Button } from '@/components/shared/Button';
 import { Calendar } from '@/components/ui/Calendar';
-import { ScrollArea } from '@/components/ui/ScrollArea';
 import { Form, FormControl, FormFieldSH, FormItem, FormMessage } from '@/components/ui/Form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 import MinuteButton from '@/components/ui/DateTimePicker/MinuteButton';
 import HourButton from '@/components/ui/DateTimePicker/HourButton';
 
@@ -40,10 +47,11 @@ interface DateTimePickerFieldProps<T extends FieldValues> {
   variant?: DropdownVariant;
   allowPast?: boolean;
   isDateRequired?: boolean;
+  placeholder?: string;
 }
 
 const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldProps<T>) => {
-  const { form, path, translationId, variant = 'default', isDateRequired, allowPast } = props;
+  const { form, path, translationId, variant = 'default', isDateRequired, allowPast, placeholder } = props;
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -122,7 +130,7 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
         minute: 'numeric',
         hour12: language === 'en',
       })
-    : t('form.input.dateTimePicker.placeholder');
+    : placeholder || t('form.input.dateTimePicker.placeholder');
 
   return (
     <Form {...form}>
@@ -146,30 +154,24 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
         }}
         render={() => (
           <FormItem className="flex flex-col space-y-0">
-            {translationId ? <p className="text-m font-bold text-background">{t(translationId)}</p> : null}
+            {translationId ? <p className="text-m font-bold">{t(translationId)}</p> : null}
             <Popover
               open={isOpen}
               onOpenChange={setIsOpen}
             >
               <PopoverTrigger asChild>
                 <FormControl
-                  className={cn(
-                    'w-auto p-0',
-                    'rounded-md',
-                    INPUT_DEFAULT,
-                    variant === 'dialog' ? INPUT_VARIANT_DIALOG : INPUT_VARIANT_DEFAULT,
-                    isOpen ? 'border-ring' : 'border-transparent',
-                  )}
+                  className={cn('w-auto p-0', inputVariants({ variant: variant === 'dialog' ? 'dialog' : 'default' }))}
                 >
                   <Button
                     variant="btn-outline"
                     className={cn(
-                      'my-0 h-10 w-fit px-3 py-0 pl-3 text-left font-normal',
+                      'my-0 h-10 w-fit rounded-lg px-3 py-0 pl-3 text-left font-normal',
                       !fieldValue && 'text-muted-foreground',
                     )}
                   >
                     {timeDisplay}
-                    <HiTrash
+                    <DeleteIcon
                       className="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
                       onClick={(event) => {
                         event.preventDefault();
@@ -183,9 +185,9 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
               </PopoverTrigger>
 
               <PopoverContent
-                className={cn('w-auto p-0', {
+                className={cn('w-auto rounded-xl p-0', {
                   'bg-background text-foreground': variant === 'default',
-                  'border-ring bg-muted text-secondary': variant === 'dialog',
+                  'border-ring bg-white text-background dark:bg-muted dark:text-secondary': variant === 'dialog',
                 })}
               >
                 <div className="sm:flex">
@@ -203,7 +205,7 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
                       {t('form.input.dateTimePicker.timeSlot')}
                     </div>
                     <div className="flex flex-col divide-y sm:h-[300px] sm:flex-row sm:divide-x sm:divide-y-0">
-                      <ScrollArea className="w-64 sm:w-auto">
+                      <ScrollArea className="w-64 sm:h-[300px] sm:w-auto">
                         <div className="flex p-2 sm:flex-col">
                           {Array.from({ length: 24 }, (_, i) => i)
                             .reverse()
@@ -219,7 +221,7 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
                         </div>
                       </ScrollArea>
 
-                      <ScrollArea className="w-64 sm:w-auto">
+                      <ScrollArea className="w-64 sm:h-[300px] sm:w-auto">
                         <div className="flex p-2 sm:flex-col">
                           {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
                             <MinuteButton

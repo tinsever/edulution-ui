@@ -1,18 +1,25 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/shared/Card';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useSidebarStore from '@/components/ui/Sidebar/useSidebarStore';
 import useLauncherStore from '@/components/ui/Launcher/useLauncherStore';
 import useLanguage from '@/hooks/useLanguage';
@@ -24,6 +31,7 @@ import useMedia from '@/hooks/useMedia';
 import cn from '@libs/common/utils/className';
 import NotificationCounter from '@/components/ui/Sidebar/SidebarMenuItems/NotificationCounter';
 import LAUNCHER_SEARCH_INPUT_LABEL from '@libs/ui/constants/launcherSearchInputLabel';
+import getAppIconClassName from '@/utils/getAppIconClassName';
 
 const LauncherAppGrid = ({ modKeyLabel }: { modKeyLabel: string }) => {
   const { toggleMobileSidebar } = useSidebarStore();
@@ -33,7 +41,13 @@ const LauncherAppGrid = ({ modKeyLabel }: { modKeyLabel: string }) => {
   const [search, setSearch] = useState('');
   const sidebarItems = useSidebarItems();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isMobileView, isTabletView } = useMedia();
+
+  const currentAppPath = useMemo(() => {
+    const segments = location.pathname.split('/').filter(Boolean);
+    return segments.length > 0 ? `/${segments[0]}` : '';
+  }, [location.pathname]);
 
   const filteredApps = useMemo(() => {
     const searchString = search.trim().toLowerCase();
@@ -86,13 +100,9 @@ const LauncherAppGrid = ({ modKeyLabel }: { modKeyLabel: string }) => {
         className="mx-auto my-3 block w-[80%] min-w-[250px] rounded-xl border border-ring px-3 py-2 md:mb-2 md:mt-0 md:w-[400px]"
       />
 
-      <div
-        className="mx-auto grid max-h-[full] w-full grid-cols-[repeat(auto-fit,minmax(8rem,auto))] justify-center
-        gap-x-3 gap-y-2 overflow-auto pb-10 scrollbar-thin md:max-h-full
-        md:w-[95%] md:grid-cols-[repeat(auto-fit,minmax(12rem,auto))] md:gap-x-6 md:gap-y-5 md:pb-4"
-      >
+      <div className="mx-auto flex max-h-full w-full flex-wrap justify-center gap-2 overflow-y-auto pb-10 scrollbar-thin md:pb-4">
         {filteredApps.length ? (
-          filteredApps.map((app, index) => (
+          filteredApps.map((app) => (
             <NavLink
               key={app.link}
               to={app.link}
@@ -100,25 +110,26 @@ const LauncherAppGrid = ({ modKeyLabel }: { modKeyLabel: string }) => {
             >
               <Card
                 className={cn(
-                  'h-26 relative flex w-full flex-col items-center overflow-hidden border border-muted-light bg-muted-dialog p-5 hover:bg-primary',
-                  {
-                    'bg-muted': index === 0,
-                  },
+                  'm-1 flex h-32 w-32 flex-col items-center overflow-hidden md:w-48 2xl:transition-transform 2xl:duration-300 2xl:hover:scale-105',
+                  app.link === currentAppPath ? 'bg-ciGreenToBlue text-white' : '',
                 )}
-                variant="text"
+                variant="dialog"
               >
-                <img
-                  src={app.icon}
-                  alt={app.title}
-                  className="h-10 w-10 md:h-14 md:w-14"
-                />
-
-                <p>{app.title}</p>
-
-                <NotificationCounter
-                  count={app.notificationCounter || 0}
-                  className="top-[10px]"
-                />
+                <div className="relative m-4 flex flex-col items-center">
+                  <img
+                    src={app.icon}
+                    alt={app.title}
+                    className={cn(
+                      'h-12 w-12 md:h-14 md:w-14',
+                      app.link !== currentAppPath && getAppIconClassName(app.icon),
+                    )}
+                  />
+                  <p>{app.title}</p>
+                  <NotificationCounter
+                    count={app.notificationCounter || 0}
+                    className="top-[-8px]"
+                  />
+                </div>
               </Card>
             </NavLink>
           ))

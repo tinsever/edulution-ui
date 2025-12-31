@@ -1,34 +1,49 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { Survey } from 'survey-react-ui';
 import { useTranslation } from 'react-i18next';
-import { ClearFilesEvent, Model, Serializer, SurveyModel, UploadFilesEvent } from 'survey-core';
-import { FileDownloadDto } from '@libs/survey/types/api/file-download.dto';
-import { removeUuidFromFileName } from '@libs/common/utils/uuidAndFileNames';
-import EDU_API_URL from '@libs/common/constants/eduApiUrl';
-import SURVEY_ANSWERS_MAXIMUM_FILE_SIZE from '@libs/survey/constants/survey-answers-maximum-file-size';
+import { ClearFilesEvent, DownloadFileEvent, Model, Serializer, SurveyModel, UploadFilesEvent } from 'survey-core';
+import MAXIMUM_UPLOAD_FILE_SIZE from '@libs/common/constants/maximumUploadFileSize';
 import SurveyErrorMessages from '@libs/survey/constants/survey-error-messages';
 import useLanguage from '@/hooks/useLanguage';
 import useSurveyTablesPageStore from '@/pages/Surveys/Tables/useSurveysTablesPageStore';
 import useParticipateSurveyStore from '@/pages/Surveys/Participation/useParticipateSurveyStore';
-import surveyTheme from '@/pages/Surveys/theme/theme';
+import useExportSurveyToPdfStore from '@/pages/Surveys/Participation/exportToPdf/useExportSurveyToPdfStore';
+import ExportSurveyToPdfDialog from '@/pages/Surveys/Participation/exportToPdf/ExportSurveyToPdfDialog';
+import surveyTheme from '@/pages/Surveys/theme/surveyTheme';
 import LoadingIndicatorDialog from '@/components/ui/Loading/LoadingIndicatorDialog';
 import '../theme/custom.participation.css';
 import 'survey-core/i18n/french';
 import 'survey-core/i18n/german';
 import 'survey-core/i18n/italian';
+import TSurveyAnswer from '@libs/survey/types/TSurveyAnswer';
+import useThemeStore from '@/store/useThemeStore';
+import THEME from '@libs/common/constants/theme';
+
+interface SurveyFileValue {
+  name: string;
+  type: string;
+  [key: string]: unknown;
+}
 
 interface SurveyParticipationModelProps {
   isPublic: boolean;
@@ -41,16 +56,21 @@ Serializer.getProperty('file', 'waitForUpload').defaultValue = true;
 Serializer.getProperty('file', 'showPreview').defaultValue = true;
 Serializer.getProperty('file', 'allowMultiple').defaultValue = false;
 Serializer.getProperty('text', 'textUpdateMode').defaultValue = 'onTyping';
-Serializer.getProperty('signaturepad', 'penColor').defaultValue = 'rgba(255, 255, 255, 1)';
 Serializer.getProperty('signaturepad', 'signatureWidth').defaultValue = '800';
 
 const SurveyParticipationModel = (props: SurveyParticipationModelProps): React.ReactNode => {
   const { isPublic } = props;
+  const { getResolvedTheme } = useThemeStore();
+
+  Serializer.getProperty('signaturepad', 'penColor').defaultValue =
+    getResolvedTheme() === THEME.dark ? 'rgba(255, 255, 255, 1)' : 'rgba(17, 24, 39, 1)';
 
   const { selectedSurvey, updateOpenSurveys, updateAnsweredSurveys } = useSurveyTablesPageStore();
 
   const { fetchAnswer, isFetching, answerSurvey, previousAnswer, uploadTempFile, deleteTempFile } =
     useParticipateSurveyStore();
+
+  const { setIsOpen: setOpenExportPDFDialog } = useExportSurveyToPdfStore();
 
   const { t } = useTranslation();
   const { language } = useLanguage();
@@ -68,6 +88,12 @@ const SurveyParticipationModel = (props: SurveyParticipationModelProps): React.R
     }
     newModel.completedHtml = `${t('survey.participate.completeMessage')}`;
 
+    newModel.addNavigationItem({
+      id: 'pdf-export',
+      title: t('survey.export.saveInPDF'),
+      action: () => setOpenExportPDFDialog(true),
+    });
+
     newModel.onCompleting.add(async (surveyModel, completingEvent) => {
       if (!selectedSurvey.id) {
         throw new Error(SurveyErrorMessages.MISSING_ID_ERROR);
@@ -75,8 +101,8 @@ const SurveyParticipationModel = (props: SurveyParticipationModelProps): React.R
       const success = await answerSurvey(
         {
           surveyId: selectedSurvey.id,
-          answer: surveyModel.getData() as JSON,
-          isPublic,
+          answer: surveyModel.getData() as TSurveyAnswer,
+          isPublic: selectedSurvey.isPublic || isPublic || false,
         },
         surveyModel,
         completingEvent,
@@ -92,36 +118,23 @@ const SurveyParticipationModel = (props: SurveyParticipationModelProps): React.R
     });
 
     newModel.onUploadFiles.add(async (_: SurveyModel, options: UploadFilesEvent): Promise<void> => {
-      const { files, callback } = options;
-      if (!selectedSurvey.id || !files?.length || files.some((file) => !file.name?.length)) {
-        return callback([]);
-      }
-      if (files.some((file) => file.size > SURVEY_ANSWERS_MAXIMUM_FILE_SIZE)) {
-        toast.error(
-          t('survey.participate.fileSizeExceeded', { size: SURVEY_ANSWERS_MAXIMUM_FILE_SIZE / (1024 * 1024) }),
-        );
-        return callback([]);
-      }
+      const { files, callback, question } = options;
+      const { id: surveyId, isPublic: surveyIsPublic } = selectedSurvey;
 
-      const uploadPromises = files.map(async (file) => {
-        const data = await uploadTempFile(selectedSurvey.id!, file);
-        if (data === null) {
-          return null;
-        }
-
-        const newFile: FileDownloadDto = {
-          ...file,
-          type: file.type || 'image/png',
-          originalName: data.name || file.name,
-          name: removeUuidFromFileName(data.name || file.name),
-          url: `${EDU_API_URL}/${data.url}`,
-          content: data.content,
-        };
-        return newFile;
-      });
+      if (!surveyId || !files?.length || files.some((file) => !file.name?.length)) {
+        callback([]);
+        return;
+      }
+      if (files.some((file) => file.size > MAXIMUM_UPLOAD_FILE_SIZE)) {
+        toast.error(t('survey.participate.fileSizeExceeded', { size: MAXIMUM_UPLOAD_FILE_SIZE / (1024 * 1024) }));
+        callback([]);
+        return;
+      }
+      const isSurveyPublic = surveyIsPublic || isPublic || false;
+      const uploadPromises = files.map(async (file) => uploadTempFile(surveyId, question?.name, file, isSurveyPublic));
       const results = await Promise.all(uploadPromises);
       const filteredResults = results.filter((result) => result !== null);
-      return callback(
+      callback(
         filteredResults.map((result) => ({
           file: result,
           content: result.url,
@@ -129,44 +142,85 @@ const SurveyParticipationModel = (props: SurveyParticipationModelProps): React.R
       );
     });
 
+    newModel.onDownloadFile.add((_: SurveyModel, options: DownloadFileEvent) => {
+      const fileValue = options.fileValue as SurveyFileValue;
+
+      fetch(options.content as string)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], fileValue.name, {
+            type: fileValue.type,
+          });
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            options.callback('success', e.target?.result);
+          };
+          reader.readAsDataURL(file);
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+          options.callback('error');
+        });
+    });
+
     newModel.onClearFiles.add(async (_surveyModel: SurveyModel, options: ClearFilesEvent): Promise<void> => {
-      let filesToDelete: File[] = [];
-      if (Array.isArray(options.value)) {
-        if (options.value.length === 0) {
-          options.callback('success');
-          return;
-        }
-        const files = options.value as File[];
-        filesToDelete = files.filter((item: File) =>
-          options.fileName === null ? true : item.name === options.fileName,
-        );
-      } else {
-        if (!options.value) {
-          options.callback('success');
-          return;
-        }
-        const file = options.value as File;
-        filesToDelete = [file];
-      }
-      if (filesToDelete.length === 0) {
-        toast.error(t('common.errors.fileDeletionFailed'));
-        options.callback('error');
+      const { callback, question, fileName } = options;
+      const { id: surveyId, isPublic: surveyIsPublic } = selectedSurvey;
+
+      if (!surveyId) {
+        callback('success');
         return;
       }
 
-      const result = await Promise.all(
-        filesToDelete.map((file: File) => {
-          if (!selectedSurvey || !selectedSurvey.id) {
-            options.callback('error');
-            return Promise.resolve('error');
-          }
-          return deleteTempFile(selectedSurvey.id, file, options.callback);
-        }),
-      );
-      if (result.every((res: string | undefined) => res === 'success')) {
-        options.callback('success');
+      const isSurveyPublic = surveyIsPublic || isPublic || false;
+      if (fileName === null) {
+        try {
+          await deleteTempFile(surveyId, question?.name, undefined, isSurveyPublic);
+          callback('success');
+          return;
+        } catch (error) {
+          callback('error');
+          return;
+        }
+      }
+
+      let filesToDelete: Array<File & { content?: string }> = [];
+      const value = options.value as undefined | (File & { content?: string }) | Array<File & { content?: string }>;
+      if (!value) {
+        callback('success');
+        return;
+      }
+      if (Array.isArray(value)) {
+        if (value.length === 0) {
+          callback('success');
+          return;
+        }
+        if (fileName) {
+          const file = value.filter((item: File & { content?: string }) => item.name === fileName);
+          filesToDelete.push(...file);
+        } else {
+          filesToDelete = value;
+        }
       } else {
-        options.callback('error');
+        filesToDelete.push(value);
+      }
+
+      if (filesToDelete.length === 0) {
+        console.error(`File with name ${options.fileName} is not found`);
+        callback('error');
+        return;
+      }
+
+      const results = await Promise.all(
+        filesToDelete.map((file: File & { content?: string }) =>
+          deleteTempFile(surveyId, question?.name, file, isSurveyPublic),
+        ),
+      );
+
+      if (results.every((res) => res === 'success')) {
+        callback('success');
+      } else {
+        callback('error');
       }
     });
 
@@ -192,17 +246,23 @@ const SurveyParticipationModel = (props: SurveyParticipationModelProps): React.R
   if (isFetching) {
     return <LoadingIndicatorDialog isOpen />;
   }
-  if (!surveyParticipationModel) {
+  if (!surveyParticipationModel || !selectedSurvey) {
     return (
       <div className="relative top-1/3">
-        <h4 className="flex justify-center">{t('survey.notFound')}</h4>
+        <h3 className="flex justify-center">{t('survey.notFound')}</h3>
       </div>
     );
   }
   return (
-    <div className="survey-participation">
-      <Survey model={surveyParticipationModel} />
-    </div>
+    <>
+      <div className="survey-participation">
+        <Survey model={surveyParticipationModel} />
+      </div>
+      <ExportSurveyToPdfDialog
+        formula={selectedSurvey.formula}
+        answer={surveyParticipationModel ? (surveyParticipationModel.data as JSON) : undefined}
+      />
+    </>
   );
 };
 

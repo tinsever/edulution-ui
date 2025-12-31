@@ -1,13 +1,20 @@
 /*
- * LICENSE
+ * Copyright (C) [2025] [Netzint GmbH]
+ * All rights reserved.
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This software is dual-licensed under the terms of:
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 1. The GNU Affero General Public License (AGPL-3.0-or-later), as published by the Free Software Foundation.
+ *    You may use, modify and distribute this software under the terms of the AGPL, provided that you comply with its conditions.
  *
- * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *    A copy of the license can be found at: https://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * OR
+ *
+ * 2. A commercial license agreement with Netzint GmbH. Licensees holding a valid commercial license from Netzint GmbH
+ *    may use this software in accordance with the terms contained in such written agreement, without the obligations imposed by the AGPL.
+ *
+ * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
 import React, { useRef } from 'react';
@@ -15,7 +22,8 @@ import { AccordionContent } from '@/components/ui/AccordionSH';
 import type { UseFormReturn } from 'react-hook-form';
 import type { GlobalSettingsFormValues } from '@libs/global-settings/types/globalSettings.form';
 import { useTranslation } from 'react-i18next';
-import { Theme, ThemeType } from '@libs/common/constants/theme';
+import THEME from '@libs/common/constants/theme';
+import ThemeType from '@libs/common/types/themeType';
 import useFilesystemStore from '@/store/FilesystemStore/useFilesystemStore';
 import getMainLogoUrl from '@libs/assets/getMainLogoUrl';
 import LogoUploadField from '@/pages/Settings/components/LogoUploadField';
@@ -33,7 +41,7 @@ const AddOrganisationLogo: React.FC<AddOrganisationLogoProps> = ({ form }) => {
 
   const setFormFileForVariant = (variant: ThemeType, file: File | null) => {
     const path: 'brandingUploads.logo.light' | 'brandingUploads.logo.dark' =
-      variant === Theme.light ? 'brandingUploads.logo.light' : 'brandingUploads.logo.dark';
+      variant === THEME.light ? 'brandingUploads.logo.light' : 'brandingUploads.logo.dark';
     form.setValue(path, file, { shouldDirty: true });
   };
   const onFileChange =
@@ -41,7 +49,7 @@ const AddOrganisationLogo: React.FC<AddOrganisationLogoProps> = ({ form }) => {
     async (event) => {
       const file = event.target.files?.[0] ?? null;
       if (file && !file.type.startsWith('image/')) {
-        const input = variant === Theme.light ? lightInputRef : darkInputRef;
+        const input = variant === THEME.light ? lightInputRef : darkInputRef;
         if (input.current) input.current.value = '';
         return;
       }
@@ -49,7 +57,7 @@ const AddOrganisationLogo: React.FC<AddOrganisationLogoProps> = ({ form }) => {
       if (file) await uploadVariant(variant, file);
     };
 
-  const darkPreviewSrc = `${getMainLogoUrl(Theme.dark)}?v=${darkVersion}`;
+  const darkPreviewSrc = `${getMainLogoUrl(THEME.dark)}?v=${darkVersion}`;
   const hasDarkSelection = !!form.watch(BRANDING_UPLOADS_LOGO.dark);
   const { isGeneric } = useDeploymentTarget();
 
@@ -64,13 +72,13 @@ const AddOrganisationLogo: React.FC<AddOrganisationLogoProps> = ({ form }) => {
       </p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
         <LogoUploadField
-          variant={Theme.dark}
+          variant={THEME.dark}
           previewSrc={darkPreviewSrc}
           cacheKey={darkVersion}
           hasLocalSelection={hasDarkSelection}
-          uploading={uploadingVariant === Theme.dark}
+          uploading={uploadingVariant === THEME.dark}
           inputRef={darkInputRef}
-          onFileChange={onFileChange(Theme.dark)}
+          onFileChange={onFileChange(THEME.dark)}
           chooseText={t('common.chooseFile')}
           changeText={t('common.changeFile')}
         />
