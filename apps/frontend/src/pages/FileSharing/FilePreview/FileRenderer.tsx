@@ -42,7 +42,9 @@ import useFileContentPreviewStore from '@/pages/FileSharing/FilePreview/useFileC
 import useFileEditorContentStore from '@/pages/FileSharing/FilePreview/useFileEditorContentStore';
 import { FILE_PREVIEW_TYPE, FilePreviewType } from '@libs/filesharing/types/filePreviewType';
 import isPdfExtension from '@libs/filesharing/utils/isPdfExtension';
-import cn from '@libs/common/utils/className';
+import isVideoExtension from '@libs/filesharing/utils/isVideoExtension';
+import { cn } from '@edulution-io/ui-kit';
+import TEXT_PREVIEW_ELEMENT_ID from '@libs/filesharing/constants/textPreviewElementId';
 
 interface FileRendererProps {
   editMode: boolean;
@@ -155,6 +157,7 @@ const FileRenderer: FC<FileRendererProps> = ({
             mode={editMode ? 'edit' : 'view'}
             type={isMobileView ? 'mobile' : 'desktop'}
             isOpenedInNewTab={isOpenedInNewTab}
+            webdavShare={webdavShare}
           />
         );
 
@@ -185,6 +188,7 @@ const FileRenderer: FC<FileRendererProps> = ({
           <MediaComponent
             key={fileUrl}
             url={fileUrl}
+            isVideo={isVideoExtension(fileExtension)}
             height={isOpenedInNewTab ? '100dvh' : '100%'}
           />
         );
@@ -203,9 +207,13 @@ const FileRenderer: FC<FileRendererProps> = ({
                 showPreview={isMarkdown}
                 onChange={setEditedContent}
                 className={cn('h-full bg-foreground', { 'p-4': !editMode })}
+                contentId={TEXT_PREVIEW_ELEMENT_ID}
               />
             ) : (
-              <TextPreview content={fileContent} />
+              <TextPreview
+                content={fileContent}
+                contentId={TEXT_PREVIEW_ELEMENT_ID}
+              />
             )}
           </div>
         );

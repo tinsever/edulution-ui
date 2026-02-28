@@ -21,12 +21,11 @@ import React, { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SurveyCreator } from 'survey-creator-react';
-import cn from '@libs/common/utils/className';
+import { cn, Button } from '@edulution-io/ui-kit';
 import SurveyDto from '@libs/survey/types/api/survey.dto';
 import { SurveyTemplateDto } from '@libs/survey/types/api/surveyTemplate.dto';
 import useLdapGroups from '@/hooks/useLdapGroups';
 import useTemplateMenuStore from '@/pages/Surveys/Editor/dialog/useTemplateMenuStore';
-import { Button } from '@/components/shared/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { AccordionTrigger, AccordionItem, AccordionContent } from '@/components/ui/AccordionSH';
 
@@ -76,8 +75,8 @@ const TemplateItem = (props: TemplateItemProps) => {
   };
 
   const handleToggleIsActive = async () => {
-    if (!template.name) return;
-    await setIsTemplateActive(template.name, !active);
+    if (!template.id) return;
+    await setIsTemplateActive(template.id, !active);
     setActive(!active);
   };
 
@@ -102,6 +101,9 @@ const TemplateItem = (props: TemplateItemProps) => {
             'overflow-y-auto bg-accent text-background transition-[max-height,opacity] duration-300 ease-in-out scrollbar-thin placeholder:text-p focus:outline-none',
             'max-h-80 overflow-visible opacity-100',
             { 'bg-white dark:bg-accent': active },
+            { 'dark:bg-card-muted bg-muted-background': !active },
+            { 'border border-solid border-primary': template.isDefaultTemplate },
+            { 'border border-solid border-ring': !template.isDefaultTemplate },
           )}
           style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12pt' }}
           disabled
@@ -109,13 +111,15 @@ const TemplateItem = (props: TemplateItemProps) => {
         <div className="mt-2 flex flex-row justify-end space-x-2">
           {isSuperAdmin && (
             <>
-              <Button
-                onClick={handleRemoveTemplate}
-                variant="btn-attention"
-                size="sm"
-              >
-                {t('common.delete')}
-              </Button>
+              {!template.isDefaultTemplate && (
+                <Button
+                  onClick={handleRemoveTemplate}
+                  variant="btn-attention"
+                  size="sm"
+                >
+                  {t('common.delete')}
+                </Button>
+              )}
               <Button
                 onClick={handleToggleIsActive}
                 variant="btn-collaboration"

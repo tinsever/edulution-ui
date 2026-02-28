@@ -21,7 +21,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LOGIN_ROUTE from '@libs/auth/constants/loginRoute';
-import { Button } from '@/components/shared/Button';
+import { Button } from '@edulution-io/ui-kit';
 import useUserStore from '@/store/UserStore/useUserStore';
 
 const PublicAccessFormHeader = () => {
@@ -44,7 +44,7 @@ const PublicAccessFormHeader = () => {
         data-testid="test-id-login-page-submit-button"
         onClick={() =>
           navigate(LOGIN_ROUTE, {
-            state: { from: location.pathname },
+            state: { from: `${location.pathname}${location.search}` },
           })
         }
       >

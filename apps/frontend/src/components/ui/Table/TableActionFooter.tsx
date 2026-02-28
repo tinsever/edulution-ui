@@ -19,10 +19,11 @@
 
 import React from 'react';
 import TableAction from '@libs/common/types/tableAction';
-import { Button } from '@/components/shared/Button';
+import { Button } from '@edulution-io/ui-kit';
 import { TableCell, TableFooter, TableRow } from '@/components/ui/Table';
 import TableActionMenu from '@/components/ui/Table/TableActionMenu';
-import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface TableActionFooterProps<TData> {
   actions?: TableAction<TData>[];
@@ -38,17 +39,21 @@ const TableActionFooter = <TData,>(props: TableActionFooterProps<TData>) => {
 
   if (actions.length < 3) {
     const actionButtons = actions.map((action) => {
-      const { icon: Icon, onClick, translationId, disabled = false } = action;
+      const { icon, onClick, translationId, disabled = false } = action;
       return (
         <Button
           key={translationId}
-          className="flex h-2 w-full items-center justify-center"
+          className="flex w-full items-center justify-center"
           onClick={() => onClick()}
           type="button"
           variant="btn-outline"
+          size="md"
           disabled={disabled}
         >
-          <Icon className="h-[18px] w-[18px] text-xl" />
+          <FontAwesomeIcon
+            icon={icon}
+            className="h-[18px] w-[18px] text-xl"
+          />
         </Button>
       );
     });
@@ -90,7 +95,10 @@ const TableActionFooter = <TData,>(props: TableActionFooterProps<TData>) => {
                     type="button"
                     variant="btn-outline"
                   >
-                    <HiOutlineDotsHorizontal className="h-[18px] w-[18px] text-xl text-background" />
+                    <FontAwesomeIcon
+                      icon={faEllipsis}
+                      className="h-[18px] w-[18px] text-xl text-background"
+                    />
                   </Button>
                 </div>
               }

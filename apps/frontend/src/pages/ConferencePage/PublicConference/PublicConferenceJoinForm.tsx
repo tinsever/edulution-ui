@@ -18,7 +18,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { Button } from '@/components/shared/Button';
+import { Button } from '@edulution-io/ui-kit';
 import { Form } from '@/components/ui/Form';
 import FormField from '@/components/shared/FormField';
 import { toast } from 'sonner';
@@ -134,7 +134,7 @@ const PublicConferenceJoinForm = ({
             )}
 
             {publicConference?.password && (
-              <div>
+              <div className="mb-4">
                 <div className="mb-2">{t('conferences.conferenceIsPasswordProtected')}</div>
                 <FormField
                   name="password"

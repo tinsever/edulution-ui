@@ -26,8 +26,8 @@ import ROOT_ROUTE from '@libs/common/constants/rootRoute';
 import NotificationCounter from '@/components/ui/Sidebar/SidebarMenuItems/NotificationCounter';
 import PageTitle from '@/components/PageTitle';
 import usePlatformStore from '@/store/EduApiStore/usePlatformStore';
-import cn from '@libs/common/utils/className';
-import getAppIconClassName from '@/utils/getAppIconClassName';
+import { cn } from '@edulution-io/ui-kit';
+import IconWrapper from '@/components/shared/IconWrapper';
 import useSidebarStore from '../useSidebarStore';
 
 const MobileSidebarItem: React.FC<SidebarMenuItemProps> = ({
@@ -55,7 +55,7 @@ const MobileSidebarItem: React.FC<SidebarMenuItemProps> = ({
         to={link}
         onClick={toggleMobileSidebar}
         className={cn(
-          'group relative flex cursor-pointer items-center justify-end gap-4 px-4 py-2',
+          'group relative flex cursor-pointer items-center justify-end gap-4 px-4 py-2 hover:bg-muted-background',
           menuItemColor,
           navLinkClassName,
           textClassName,
@@ -63,11 +63,13 @@ const MobileSidebarItem: React.FC<SidebarMenuItemProps> = ({
       >
         <p className={titleClassName}>{title}</p>
 
-        <img
-          src={icon}
-          width={SIDEBAR_ICON_WIDTH}
-          className={cn('relative', !isSelected && getAppIconClassName(icon))}
+        <IconWrapper
+          iconSrc={icon}
           alt={`${title}-icon`}
+          className="relative"
+          width={SIDEBAR_ICON_WIDTH}
+          height={SIDEBAR_ICON_WIDTH}
+          applyLegacyFilter={!isSelected}
         />
       </NavLink>
 

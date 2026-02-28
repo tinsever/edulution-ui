@@ -27,7 +27,7 @@ import FILE_PREVIEW_ELEMENT_ID from '@libs/filesharing/constants/filePreviewElem
 import useWindowResize from '@/hooks/useWindowResize';
 import OpenInNewTabButton from '@/components/structure/framing/ResizableWindow/Buttons/OpenInNewTabButton';
 import FILE_PREVIEW_ROUTE from '@libs/filesharing/constants/routes';
-import EditButton from '@/components/structure/framing/ResizableWindow/Buttons/EditButton';
+import ToggleEditModeButton from '@/components/structure/framing/ResizableWindow/Buttons/ToggleEditModeButton';
 import SaveButton from '@/components/structure/framing/ResizableWindow/Buttons/SaveButton';
 import isOnlyOfficeDocument from '@libs/filesharing/utils/isOnlyOfficeDocument';
 import isTextExtension from '@libs/filesharing/utils/isTextExtension';
@@ -47,6 +47,9 @@ import useFileSharingDownloadStore from '@/pages/FileSharing/useFileSharingDownl
 import useFileEditorContentStore from '@/pages/FileSharing/FilePreview/useFileEditorContentStore';
 import UnsavedChangesDialog from '@/pages/FileSharing/FilePreview/TextEditor/UnsavedChangesDialog';
 import isDrawioExtension from '@libs/filesharing/utils/isDrawioExtension';
+import PrintButton from '@/components/structure/framing/ResizableWindow/Buttons/PrintButton';
+import printContent from '@/pages/FileSharing/utilities/printContent';
+import TEXT_PREVIEW_ELEMENT_ID from '@libs/filesharing/constants/textPreviewElementId';
 
 const FileSharingPreviewFrame = () => {
   const { t } = useTranslation();
@@ -60,7 +63,7 @@ const FileSharingPreviewFrame = () => {
     setIsFilePreviewDocked,
   } = useFileEditorStore();
   const { loadDownloadUrl } = useFileSharingDownloadStore();
-  const { setFileIsCurrentlyDisabled } = useFileSharingStore();
+  const { setFileIsCurrentlyDisabled, fetchFiles, currentPath } = useFileSharingStore();
   const { setCurrentWindowedFrameSize } = useFrameStore();
   const {
     hasUnsavedChanges,
@@ -118,12 +121,43 @@ const FileSharingPreviewFrame = () => {
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const webdavShare = decodeURIComponent(pathSegments[1]);
 
+  const performOpenInNewTab = () => {
+    if (!currentlyEditingFile) return;
+    const { filename } = currentlyEditingFile;
+    addFileToOpenInNewTab(currentlyEditingFile);
+    window.open(`/${FILE_PREVIEW_ROUTE}?share=${webdavShare}&file=${currentlyEditingFile.etag}`, '_blank');
+    resetPreview();
+
+    let hasReturned = false;
+    const listeners: { focus?: () => void; visibility?: () => void } = {};
+    const onReturn = () => {
+      if (hasReturned) return;
+      hasReturned = true;
+      if (listeners.focus) window.removeEventListener('focus', listeners.focus);
+      if (listeners.visibility) document.removeEventListener('visibilitychange', listeners.visibility);
+      void fetchFiles(webdavShare, currentPath, true);
+      void setFileIsCurrentlyDisabled(filename, true, 5000);
+    };
+    listeners.focus = () => onReturn();
+    listeners.visibility = () => {
+      if (document.visibilityState === 'visible') onReturn();
+    };
+    window.addEventListener('focus', listeners.focus);
+    document.addEventListener('visibilitychange', listeners.visibility);
+  };
+
   const openInNewTab = () => {
-    if (currentlyEditingFile) {
-      addFileToOpenInNewTab(currentlyEditingFile);
-      window.open(`/${FILE_PREVIEW_ROUTE}?share=${webdavShare}&file=${currentlyEditingFile.etag}`, '_blank');
-      resetPreview();
+    if (!currentlyEditingFile) return;
+
+    const hasTextChanges = isTextFile && hasUnsavedChanges();
+    const hasDrawioChanges = isDrawioFile && hasDrawioUnsavedChanges();
+
+    if (isEditMode && (hasTextChanges || hasDrawioChanges)) {
+      openUnsavedChangesDialog(performOpenInNewTab);
+      return;
     }
+
+    performOpenInNewTab();
   };
 
   useEffect(() => {
@@ -145,6 +179,7 @@ const FileSharingPreviewFrame = () => {
     const { filename } = currentlyEditingFile;
     setIsEditMode(false);
     resetPreview();
+    await fetchFiles(webdavShare, currentPath, true);
     await setFileIsCurrentlyDisabled(filename, true, 5000);
     closingRef.current = false;
   };
@@ -164,6 +199,25 @@ const FileSharingPreviewFrame = () => {
   };
 
   const handleSaveFile = () => saveFile(webdavShare);
+
+  const handleToggleEditMode = () => {
+    if (isEditMode) {
+      const hasTextChanges = isTextFile && hasUnsavedChanges();
+      const hasDrawioChanges = isDrawioFile && hasDrawioUnsavedChanges();
+
+      if (hasTextChanges || hasDrawioChanges) {
+        openUnsavedChangesDialog(() => setIsEditMode(false));
+        return;
+      }
+    }
+    setIsEditMode(!isEditMode);
+  };
+
+  const handlePrint = () => {
+    const contentElement = document.getElementById(TEXT_PREVIEW_ELEMENT_ID);
+    const title = currentlyEditingFile?.filename.replace(/\.[^.]+$/, '') || 'document';
+    printContent(contentElement, title);
+  };
 
   const { appConfigs } = useAppConfigsStore();
 
@@ -200,12 +254,12 @@ const FileSharingPreviewFrame = () => {
 
   const windowTitle = currentlyEditingFile?.filename || t(`filesharing.filePreview`);
 
-  const isEditButtonVisible =
-    !isEditMode && (isOnlyOfficeDocument(currentlyEditingFile?.filename || '') || isTextFile || isDrawioFile);
+  const canToggleEditMode = isOnlyOfficeDocument(currentlyEditingFile?.filename || '') || isTextFile || isDrawioFile;
   const isTextEditMode = isEditMode && isTextFile;
   const isDrawioEditMode = isEditMode && isDrawioFile;
   const showSaveButton = isTextEditMode || isDrawioEditMode;
   const hasPendingChanges = isTextEditMode ? hasUnsavedChanges() : hasDrawioUnsavedChanges();
+  const showPrintButton = isTextFile && !isEditMode;
   const additionalButtons = [
     <OpenInNewTabButton
       onClick={openInNewTab}
@@ -218,10 +272,17 @@ const FileSharingPreviewFrame = () => {
         key={SaveButton.name}
       />
     ),
-    isEditButtonVisible && (
-      <EditButton
-        onClick={() => setIsEditMode(true)}
-        key={EditButton.name}
+    showPrintButton && (
+      <PrintButton
+        onClick={handlePrint}
+        key={PrintButton.name}
+      />
+    ),
+    canToggleEditMode && (
+      <ToggleEditModeButton
+        onClick={handleToggleEditMode}
+        isEditMode={isEditMode}
+        key={ToggleEditModeButton.name}
       />
     ),
     !isMobileView && isFilePreviewDocked && (

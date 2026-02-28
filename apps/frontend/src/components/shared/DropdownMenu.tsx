@@ -18,7 +18,8 @@
  */
 
 import React from 'react';
-import cn from '@libs/common/utils/className';
+import { cn } from '@edulution-io/ui-kit';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -63,7 +64,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       <DropdownMenuPortal>
         <DropdownMenuContent
           className={cn(
-            'z-50 max-h-[calc(100vh-300px)] min-w-[8rem] overflow-y-auto rounded-lg border-none bg-overlay p-1 shadow-md',
+            'z-50 max-h-[calc(100vh-300px)] min-w-[8rem] overflow-y-auto rounded-lg border-none bg-accent-light p-1 shadow-md',
             menuContentClassName,
           )}
         >
@@ -96,11 +97,15 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   }
                   item.onClick?.();
                 }}
-                className="flex cursor-pointer items-center space-x-2 rounded-lg bg-overlay px-4 py-2 hover:bg-muted-light"
+                className={cn(
+                  'flex cursor-pointer items-center space-x-2 rounded-lg bg-accent-light px-4 py-2 data-[highlighted]:bg-accent',
+                  item.checked && 'bg-accent',
+                )}
               >
                 {item.icon && (
-                  <div className="flex  items-center justify-center rounded-lg border-2 bg-white p-1 dark:border-none">
-                    <item.icon
+                  <div className="flex items-center justify-center rounded-lg border-2 bg-white p-1 dark:border-none">
+                    <FontAwesomeIcon
+                      icon={item.icon}
                       style={{ color: item.iconColor || 'black' }}
                       className="h-5 w-5"
                     />

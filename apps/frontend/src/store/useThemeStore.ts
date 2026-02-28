@@ -18,11 +18,10 @@
  */
 
 import THEME from '@libs/common/constants/theme';
-import ThemeType from '@libs/common/types/themeType';
+import ThemeType, { ResolvedThemeType } from '@libs/common/types/themeType';
 import { create, StateCreator } from 'zustand';
 import { createJSONStorage, persist, PersistOptions } from 'zustand/middleware';
 
-type ResolvedThemeType = Omit<ThemeType, 'system'>;
 interface ThemeStore {
   theme: ThemeType;
   setTheme: (theme: ThemeType) => void;
@@ -53,7 +52,7 @@ const applyThemeToDOM = (resolvedTheme: ResolvedThemeType) => {
 const useThemeStore = create<ThemeStore>(
   (persist as PersistedThemeStore)(
     (set, get) => ({
-      theme: THEME.dark,
+      theme: THEME.system,
 
       setTheme: (theme) => {
         set({ theme });

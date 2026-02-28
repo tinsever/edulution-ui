@@ -17,18 +17,19 @@
  * If you are uncertain which license applies to your use case, please contact us at info@netzint.de for clarification.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import cn from '@libs/common/utils/className';
+import { cn } from '@edulution-io/ui-kit';
 import DropdownVariant from '@libs/ui/types/DropdownVariant';
 import { INPUT_BASE_CLASSES, VARIANT_COLORS } from '@libs/ui/constants/commonClassNames';
 
-const DROPDOWN_SELECT_CLASSES = `${INPUT_BASE_CLASSES} box-border pl-2.5 pr-[52px] text-start placeholder:text-background`;
+const DROPDOWN_SELECT_CLASSES = `${INPUT_BASE_CLASSES} box-border pl-2.5 pr-8 text-start placeholder:text-background`;
 
 export type DropdownOptions = {
   id: string;
   name: string;
+  disabled?: boolean;
 };
 
 interface DropdownProps {
@@ -37,17 +38,24 @@ interface DropdownProps {
   handleChange: (value: string) => void;
   openToTop?: boolean;
   classname?: string;
+  inputClassName?: string;
+  menuClassName?: string;
   variant?: DropdownVariant;
   placeholder?: string;
   translate?: boolean;
 }
 
+const MENU_MAX_HEIGHT = 125;
+const MENU_MARGIN = 8;
+
 const DropdownSelect = ({
   options,
   selectedVal,
   handleChange,
-  openToTop = false,
+  openToTop: openToTopProp = false,
   classname,
+  inputClassName,
+  menuClassName,
   variant = 'default',
   placeholder = '',
   translate = true,
@@ -57,21 +65,51 @@ const DropdownSelect = ({
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [openToTop, setOpenToTop] = useState(openToTopProp);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const closeMenu = () => setIsOpen(false);
 
+  const calculatePosition = useCallback(() => {
+    if (!dropdownRef.current) return;
+
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const shouldOpenToTop = openToTopProp || (spaceBelow < MENU_MAX_HEIGHT + MENU_MARGIN && spaceAbove > spaceBelow);
+    const menuHeight = Math.min(menuRef.current?.scrollHeight ?? MENU_MAX_HEIGHT, MENU_MAX_HEIGHT);
+
+    const viewportOffsetTop = window.visualViewport?.offsetTop ?? 0;
+    const calculatedTop = shouldOpenToTop
+      ? rect.top - menuHeight - MENU_MARGIN + viewportOffsetTop
+      : rect.bottom + MENU_MARGIN + viewportOffsetTop;
+
+    setOpenToTop(shouldOpenToTop);
+    setMenuPosition({
+      top: calculatedTop,
+      left: rect.left,
+      width: rect.width,
+    });
+  }, [openToTopProp]);
+
   useEffect(() => {
-    if (isOpen && dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect();
-      setMenuPosition({
-        top: openToTop ? rect.top : rect.bottom,
-        left: rect.left,
-        width: rect.width,
-      });
-    }
-  }, [isOpen, openToTop]);
+    if (!isOpen) return undefined;
+
+    let requestAnimationFrameId: number;
+
+    const updatePosition = () => {
+      calculatePosition();
+      requestAnimationFrameId = requestAnimationFrame(updatePosition);
+    };
+
+    updatePosition();
+
+    return () => {
+      cancelAnimationFrame(requestAnimationFrameId);
+    };
+  }, [isOpen, calculatePosition]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -119,6 +157,22 @@ const DropdownSelect = ({
     }
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.currentTarget.scrollTop += e.deltaY;
+  };
+
+  const touchStartY = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const deltaY = touchStartY.current - e.touches[0].clientY;
+    e.currentTarget.scrollTop += deltaY;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
   const arrowPointsDown = (isOpen && !openToTop) || (!isOpen && openToTop);
 
   const variantClasses = {
@@ -156,19 +210,27 @@ const DropdownSelect = ({
         onFocus={searchEnabled ? openMenu : undefined}
         readOnly={!searchEnabled}
         disabled={options.length === 0}
-        className={cn(DROPDOWN_SELECT_CLASSES, variantClasses[variant], {
-          'cursor-text': searchEnabled,
-          'cursor-pointer': !searchEnabled,
-        })}
+        className={cn(
+          DROPDOWN_SELECT_CLASSES,
+          variantClasses[variant],
+          {
+            'cursor-text': searchEnabled,
+            'cursor-pointer': !searchEnabled,
+          },
+          inputClassName,
+        )}
         aria-autocomplete={searchEnabled ? 'list' : undefined}
         aria-controls="dropdown-listbox"
       />
 
       <div
-        className={cn('absolute right-2.5 top-3.5 mt-1.5 block h-0 w-0 border-solid border-border', {
-          'border-x-[5px] border-b-0 border-t-[5px] border-x-transparent': !arrowPointsDown,
-          'border-x-[5px] border-b-[5px] border-t-0 border-x-transparent': arrowPointsDown,
-        })}
+        className={cn(
+          'pointer-events-none absolute right-2.5 top-1/2 block h-0 w-0 -translate-y-1/2 border-solid border-border',
+          {
+            'border-x-[5px] border-b-0 border-t-[5px] border-x-transparent': !arrowPointsDown,
+            'border-x-[5px] border-b-[5px] border-t-0 border-x-transparent': arrowPointsDown,
+          },
+        )}
       />
 
       {isOpen &&
@@ -176,17 +238,21 @@ const DropdownSelect = ({
           <div
             ref={menuRef}
             className={cn(
-              'fixed z-[1000] mt-1 box-border max-h-[125px] overflow-y-auto rounded-lg text-p scrollbar-thin',
+              'pointer-events-auto fixed z-[1000] mt-1 box-border overflow-y-auto rounded-lg text-p scrollbar-thin',
               variantClasses[variant],
+              menuClassName,
             )}
             style={{
-              top: openToTop ? 'auto' : menuPosition.top,
-              bottom: openToTop ? window.innerHeight - menuPosition.top : 'auto',
+              maxHeight: MENU_MAX_HEIGHT,
+              top: menuPosition.top,
               left: menuPosition.left,
               width: menuPosition.width,
             }}
             role="listbox"
             id="dropdown-listbox"
+            onWheel={handleWheel}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
           >
             {filteredOptions.map((option) => {
               const label = translateLabel(option.name);
@@ -198,12 +264,15 @@ const DropdownSelect = ({
                   key={option.id}
                   role="option"
                   aria-selected={selected}
-                  tabIndex={0}
-                  onClick={() => selectOption(option)}
-                  onKeyDown={(e) => handleKeyDown(e, option)}
+                  aria-disabled={option.disabled || undefined}
+                  tabIndex={option.disabled ? -1 : 0}
+                  onClick={option.disabled ? undefined : () => selectOption(option)}
+                  onKeyDown={option.disabled ? undefined : (e) => handleKeyDown(e, option)}
                   className={cn(
-                    'box-border block cursor-pointer px-2.5 py-2',
-                    selected ? classes.selected : classes.base,
+                    'box-border block px-2.5 py-2',
+                    option.disabled
+                      ? 'cursor-not-allowed opacity-50'
+                      : cn('cursor-pointer', selected ? classes.selected : classes.base),
                   )}
                   title={label}
                 >

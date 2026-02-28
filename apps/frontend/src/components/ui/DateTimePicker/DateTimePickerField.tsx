@@ -24,15 +24,15 @@ import { de, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { FieldValues, Path, PathValue, UseFormReturn } from 'react-hook-form';
 import { DeleteIcon } from '@libs/common/constants/standardActionIcons';
-import { CalendarIcon } from '@radix-ui/react-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { inputVariants } from '@libs/ui/constants/commonClassNames';
 import DropdownVariant from '@libs/ui/types/DropdownVariant';
-import cn from '@libs/common/utils/className';
+import { cn, Button } from '@edulution-io/ui-kit';
 import safeGetHours from '@libs/common/utils/Date/safeGetHours';
 import safeGetMinutes from '@libs/common/utils/Date/safeGetMinutes';
 import safeGetDate from '@libs/common/utils/Date/safeGetDate';
 import useLanguage from '@/hooks/useLanguage';
-import { Button } from '@/components/shared/Button';
 import { Calendar } from '@/components/ui/Calendar';
 import { Form, FormControl, FormFieldSH, FormItem, FormMessage } from '@/components/ui/Form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover';
@@ -171,7 +171,8 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
                     )}
                   >
                     {timeDisplay}
-                    <DeleteIcon
+                    <FontAwesomeIcon
+                      icon={DeleteIcon}
                       className="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
                       onClick={(event) => {
                         event.preventDefault();
@@ -179,7 +180,10 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
                       }}
                       visibility={fieldValue ? 'visible' : 'hidden'}
                     />
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50 hover:opacity-100" />
+                    <FontAwesomeIcon
+                      icon={faCalendarDays}
+                      className="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
+                    />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
@@ -187,7 +191,7 @@ const DateTimePickerField = <T extends FieldValues>(props: DateTimePickerFieldPr
               <PopoverContent
                 className={cn('w-auto rounded-xl p-0', {
                   'bg-background text-foreground': variant === 'default',
-                  'border-ring bg-white text-background dark:bg-muted dark:text-secondary': variant === 'dialog',
+                  'border-ring bg-white text-background dark:bg-accent dark:text-secondary': variant === 'dialog',
                 })}
               >
                 <div className="sm:flex">

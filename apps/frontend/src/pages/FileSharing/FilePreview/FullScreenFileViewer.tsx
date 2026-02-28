@@ -35,8 +35,9 @@ import isTextExtension from '@libs/filesharing/utils/isTextExtension';
 import getFileExtension from '@libs/filesharing/utils/getFileExtension';
 import useFileEditorContentStore from '@/pages/FileSharing/FilePreview/useFileEditorContentStore';
 import isDrawioExtension from '@libs/filesharing/utils/isDrawioExtension';
-import { MdSave } from 'react-icons/md';
-import { Button } from '@/components/shared/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SaveIcon } from '@libs/common/constants/standardActionIcons';
+import { Button } from '@edulution-io/ui-kit';
 
 const FullScreenFileViewer = () => {
   const { t } = useTranslation();
@@ -108,7 +109,7 @@ const FullScreenFileViewer = () => {
           className="absolute bottom-4 right-4 z-50"
           variant="btn-collaboration"
         >
-          <MdSave className="mr-2 h-4 w-4" />
+          <FontAwesomeIcon icon={SaveIcon} />
           {isSaving ? t('filesharing.textEditor.saving') : t('common.save')}
         </Button>
       )}

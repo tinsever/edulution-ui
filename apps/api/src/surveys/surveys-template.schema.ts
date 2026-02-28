@@ -20,6 +20,8 @@
 import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import SurveyFormula from '@libs/survey/types/SurveyFormula';
+import MultipleSelectorGroup from '@libs/groups/types/multipleSelectorGroup';
+import { Group } from '@libs/groups/types/group';
 import { Survey } from './survey.schema';
 
 export type SurveysTemplateDocument = SurveysTemplate & Document;
@@ -35,8 +37,17 @@ export class SurveysTemplate {
   @Prop({ default: true, required: true })
   isActive: boolean;
 
+  @Prop({ default: false, required: true })
+  isDefaultTemplate: boolean;
+
   @Prop({ default: 1, required: true, unique: false })
   schemaVersion: number;
+
+  @Prop({ default: [] })
+  accessibleByRoles: MultipleSelectorGroup[] | Group[];
+
+  @Prop({ default: ['linuxmuster'] })
+  deploymentTargets: string[];
 }
 
 const SurveysTemplateSchema = SchemaFactory.createForClass(SurveysTemplate);
